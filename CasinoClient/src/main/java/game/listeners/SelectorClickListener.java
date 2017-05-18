@@ -1,0 +1,98 @@
+package game.listeners;
+
+import game.Coord;
+import game.GameController;
+import javafx.event.EventHandler;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import library.Bet;
+
+import java.math.BigDecimal;
+import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.HashSet;
+
+
+public class SelectorClickListener implements EventHandler<MouseEvent> {
+
+    private GameController gameCtrl;
+    private Coord[] offBoard = new Coord[]{new Coord(7, 0), new Coord(8, 0), new Coord(7, 24), new Coord(8, 24),};
+
+    public SelectorClickListener(GameController gameCtrl) {
+        this.gameCtrl = gameCtrl;
+    }
+
+    @Override
+    public void handle(MouseEvent event) {
+        Pane p = (Pane) event.getSource();
+        int row = GridPane.getRowIndex(p);
+        int col = GridPane.getColumnIndex(p);
+        Coord coord = new Coord(row, col);
+
+        if (Arrays.asList(offBoard).contains(coord))
+            return;
+
+        String url = "client/java/pw/bitcoinroulette/client/images/";
+        switch (gameCtrl.currChip) {
+            case -1: /* No chip selected */
+                return;
+            case 0:
+                url += "white_chip.png";
+                break;
+            case 1:
+                url += "red_chip.png";
+                break;
+            case 2:
+                url += "blue_chip.png";
+                break;
+            case 3:
+                url += "green_chip.png";
+                break;
+            case 4:
+                url += "black_chip.png";
+                break;
+        }
+
+		/* Place chip */
+        ImageView chip = new ImageView(new Image(url, 40.0, 40.0, true, false));
+        chip.setMouseTransparent(true);
+        chip.setX(event.getSceneX() - 372);
+        chip.setY(event.getSceneY() - 22);
+        gameCtrl.chipsOnBoard.getChildren().add(chip);
+        gameCtrl.floatingChip.setVisible(false);
+
+        for (ImageView i : gameCtrl.chips) {
+            i.setEffect(new ColorAdjust());
+        }
+
+		/* Add bet to server */
+        Coord[] selection = gameCtrl.coordToSelection.get(coord);
+        BigDecimal betAmount = gameCtrl.chipAmounts[gameCtrl.currChip];
+        gameCtrl.currChip = -1;
+        int payout = (36 / selection.length) - 1;
+        System.out.printf("library.Bet: %f Payout: %d to 1\n", betAmount, payout);
+
+        HashSet<Integer> winningNumbers = new HashSet<Integer>();
+        Arrays.asList(selection).forEach(c -> winningNumbers.add(gameCtrl.coordToNumber.get(c)));
+
+        Bet b;
+        try {
+            b = gameCtrl.client.authPlayer.makeBet(gameCtrl.client.serverGame, betAmount, payout, winningNumbers, gameCtrl.coordToDescription(coord));
+            //TODO
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        gameCtrl.addBet(b);
+        gameCtrl.betToChip.put(b, chip);
+
+        //TODO
+//		gameController.balanceText.setText(String.format("%.8f฿", newBalance));
+    }
+
+}

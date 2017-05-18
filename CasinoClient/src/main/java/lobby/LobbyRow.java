@@ -1,0 +1,59 @@
+package lobby;
+
+import Client.Client;
+import javafx.scene.control.Button;
+import library.Lobby;
+import library.OtherPlayer;
+import library.ServerGame;
+
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class LobbyRow {
+
+    private String name;
+    private String players;
+    private Button joinBtn;
+
+    public LobbyRow(Client client, Lobby lobby, ServerGame sg) {
+
+        this.joinBtn = new Button("Join");
+        this.joinBtn.setOnMouseClicked((e) -> {
+            client.serverGame = sg;
+            try {
+                client.authPlayer.joinGame(sg);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            client.setGameScene();
+        });
+        try {
+            this.name = sg.getName();
+
+            List<String> playerNames = new ArrayList<String>();
+            for (OtherPlayer p : sg.getPlayers()) {
+                playerNames.add(p.getUsername());
+            }
+            players = String.join(",", playerNames);
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPlayers() {
+        return players;
+    }
+
+    public Button getJoinBtn() {
+        return joinBtn;
+    }
+
+}
