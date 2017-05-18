@@ -1,18 +1,16 @@
 package library;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.io.Serializable;
 import java.util.Set;
 
+public interface ServerGame extends Serializable {
 
-public interface ServerGame extends Remote {
+    public Long getId();
 
-	public Long getId() throws RemoteException;
-	
-	public String getName() throws RemoteException;
-	
-	public Set<OtherPlayer> getPlayers() throws RemoteException;
-	
-	public Set<Bet> getBets()  throws RemoteException;
-	
+    public String getName();
+
+    public Set<Player> getPlayers();
+
+    public Set<Bet> getBets();
+
 }

@@ -1,12 +1,11 @@
 package library;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+public interface Player {
 
-public interface OtherPlayer extends Remote {
+    public Long getPlayerId();
 
-	public String getUsername() throws RemoteException;
-	
-	public Long getPlayerId() throws RemoteException;
+    public String getUsername();
+
+    public Double getBalance();
 
 }

@@ -1,10 +1,9 @@
 package library;
 
 import java.math.BigDecimal;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface Transaction extends Remote{
+public interface Transaction {
 
 	public long getTransactionId() throws RemoteException;
 

@@ -48,7 +48,9 @@ public class Client extends Application {
 
     private void setLoginScene() {
 
-        FXMLLoader loginFxml = new FXMLLoader(getClass().getResource("login/Login.fxml"));
+        FXMLLoader loginFxml = new FXMLLoader();
+        loginFxml.setLocation(getClass().getResource("/Login.fxml"));
+        System.err.print("LOGINFXML=" +  loginFxml.toString());
         loginFxml.setController(new LoginController(this));
         Scene loginScene;
         try {
@@ -62,7 +64,7 @@ public class Client extends Application {
 
     public void setLobbyScene() {
 
-        FXMLLoader lobbyFxml = new FXMLLoader(getClass().getResource("lobby/Lobby.fxml"));
+        FXMLLoader lobbyFxml = new FXMLLoader(getClass().getResource("/Lobby.fxml"));
         lobbyFxml.setController(lobbyController);
         Scene lobbyScene;
         try {
@@ -81,7 +83,7 @@ public class Client extends Application {
             return;
         }
 
-        FXMLLoader gameFxml = new FXMLLoader(getClass().getResource("game/Game.fxml"));
+        FXMLLoader gameFxml = new FXMLLoader(getClass().getResource("Game.fxml"));
         try {
             GameController gameController = new GameController(this, serverGame);
             gameFxml.setController(gameController);
@@ -100,7 +102,7 @@ public class Client extends Application {
 
     public void setAccountScene() {
 
-        FXMLLoader accountFxml = new FXMLLoader(getClass().getResource("account/Account.fxml"));
+        FXMLLoader accountFxml = new FXMLLoader(getClass().getResource("Account.fxml"));
         accountFxml.setController(new AccountController(this));
         Scene accountScene;
         try {

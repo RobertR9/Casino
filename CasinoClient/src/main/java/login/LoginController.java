@@ -4,6 +4,7 @@ import Client.Client;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -28,6 +29,7 @@ public class LoginController {
         this.client = client;
     }
 
+    @FXML
     public void initialize() {
 
     }

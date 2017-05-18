@@ -3,7 +3,6 @@ package lobby;
 import Client.Client;
 import javafx.scene.control.Button;
 import library.Lobby;
-import library.OtherPlayer;
 import library.ServerGame;
 
 import java.rmi.RemoteException;

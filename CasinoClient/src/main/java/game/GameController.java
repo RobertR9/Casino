@@ -31,7 +31,6 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import library.Bet;
 import library.ClientGame;
-import library.OtherPlayer;
 import library.ServerGame;
 
 import java.math.BigDecimal;
@@ -198,7 +197,7 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
                 row -= 2;
             }
         }
-		
+
 		/* 0 selector */
         numberToCoord[0] = new Coord(1, 0);
         coordToNumber.put(new Coord(1, 0), 0);
@@ -429,7 +428,7 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
         if (specialDescriptions.containsKey(coord)) {
             return specialDescriptions.get(coord);
         } else {
-            HashSet<Integer> winningNumbers = new HashSet<Integer>();
+            HashSet<Integer> winningNumbers = new HashSet<>();
             Arrays.asList(coordToSelection.get(coord)).forEach
                     (c -> winningNumbers.add(coordToNumber.get(c)));
 
