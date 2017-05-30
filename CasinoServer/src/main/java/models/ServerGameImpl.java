@@ -1,8 +1,8 @@
 package models;
 
 import library.Bet;
+import library.Player;
 
-import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,14 +15,14 @@ public class ServerGameImpl {
 
     private String name;
 
-    private Set<AuthPlayerImpl> players = new HashSet<AuthPlayerImpl>();
+    private Set<Player> players = new HashSet<>();
 
-    private Set<BetImpl> bets = new HashSet<BetImpl>();
+    private Set<Bet> bets = new HashSet<>();
 
-    public ServerGameImpl() throws RemoteException {
+    public ServerGameImpl() {
     }
 
-    public ServerGameImpl(String name) throws RemoteException {
+    public ServerGameImpl(String name) {
         super();
         this.name = name;
     }
@@ -38,7 +38,7 @@ public class ServerGameImpl {
             ServerGameImpl other = (ServerGameImpl) o;
             try {
                 return other.getName().equals(name);
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 return false;
             }
         }
@@ -48,10 +48,10 @@ public class ServerGameImpl {
         return name.hashCode();
     }
 
-    public Set<OtherPlayer> getPlayers() {
-        Set<OtherPlayer> s = new HashSet<>();
-        for (AuthPlayerImpl a : players) {
-            s.add((OtherPlayer) a);
+    public Set<Player> getPlayers() {
+        Set<Player> s = new HashSet<>();
+        for (Player a : players) {
+            s.add(a);
         }
         return s;
     }
@@ -62,7 +62,7 @@ public class ServerGameImpl {
 
     public Set<Bet> getBets() {
         Set<Bet> s = new HashSet<>();
-        for (BetImpl b : bets) {
+        for (Bet b : bets) {
             s.add(b);
         }
         return s;

@@ -5,7 +5,6 @@ import library.ServerGame;
 import library.Transaction;
 
 import java.math.BigDecimal;
-import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,20 +13,18 @@ public class AuthPlayerImpl {
 
     private static final long serialVersionUID = 2772558738676419928L;
 
-    private BigDecimal balance;
-    private Set<TransactionImpl> transactions = new HashSet<TransactionImpl>();
-    private Set<BetImpl> bets = new HashSet<BetImpl>();
-    private Set<ServerGameImpl> games = new HashSet<ServerGameImpl>();
+    private Double balance;
+    private Set<Bet> bets = new HashSet<>();
 
-    public AuthPlayerImpl() throws RemoteException {
+    public AuthPlayerImpl() {
         super();
     }
 
-    public AuthPlayerImpl(String username, String password) throws RemoteException {
-        this.balance = BigDecimal.ZERO;
+    public AuthPlayerImpl(String username, String password) {
+        this.balance = 1000d;
     }
 
-    public BigDecimal getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
@@ -40,7 +37,7 @@ public class AuthPlayerImpl {
     }
 
 
-    public String withdraw(String address, BigDecimal amount) throws RemoteException {
+    public String withdraw(String address, BigDecimal amount) {
 
 //		if (!bitcoin.validateaddress(address).isIsvalid()) {
 //			throw new RemoteException("Invalid address");
@@ -54,10 +51,9 @@ public class AuthPlayerImpl {
         return "hash";
     }
 
-    public Bet makeBet(ServerGame g, BigDecimal amount, int payout, HashSet<Integer> winning, String description)
-            throws RemoteException {
+    public Bet makeBet(ServerGame g, Double amount, int payout, HashSet<Integer> winning, String description) {
 
-        BetImpl b = new BetImpl(amount, payout, winning, description);
+        Bet b = new Bet(amount, payout, winning, description, null);
         bets.add(b);
 
 //		Session session = sessionFactory.openSession();
@@ -70,7 +66,7 @@ public class AuthPlayerImpl {
         return b;
     }
 
-    public void joinGame(ServerGame sg) throws RemoteException {
+    public void joinGame(ServerGame sg) {
 
 //		Session session = sessionFactory.openSession();
 //		session.beginTransaction();
@@ -92,3 +88,4 @@ public class AuthPlayerImpl {
 //		session.close();
 //	}
     }
+}

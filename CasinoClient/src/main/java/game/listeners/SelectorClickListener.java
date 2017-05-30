@@ -1,6 +1,6 @@
 package game.listeners;
 
-import game.Coord;
+import game.Coordinate;
 import game.GameController;
 import javafx.event.EventHandler;
 import javafx.scene.effect.ColorAdjust;
@@ -11,8 +11,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import library.Bet;
 
-import java.math.BigDecimal;
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -20,7 +18,7 @@ import java.util.HashSet;
 public class SelectorClickListener implements EventHandler<MouseEvent> {
 
     private GameController gameCtrl;
-    private Coord[] offBoard = new Coord[]{new Coord(7, 0), new Coord(8, 0), new Coord(7, 24), new Coord(8, 24),};
+    private Coordinate[] offBoard = new Coordinate[]{new Coordinate(7, 0), new Coordinate(8, 0), new Coordinate(7, 24), new Coordinate(8, 24),};
 
     public SelectorClickListener(GameController gameCtrl) {
         this.gameCtrl = gameCtrl;
@@ -31,12 +29,12 @@ public class SelectorClickListener implements EventHandler<MouseEvent> {
         Pane p = (Pane) event.getSource();
         int row = GridPane.getRowIndex(p);
         int col = GridPane.getColumnIndex(p);
-        Coord coord = new Coord(row, col);
+        Coordinate coordinate = new Coordinate(row, col);
 
-        if (Arrays.asList(offBoard).contains(coord))
+        if (Arrays.asList(offBoard).contains(coordinate))
             return;
 
-        String url = "client/java/pw/bitcoinroulette/client/images/";
+        String url = "/images/";
         switch (gameCtrl.currChip) {
             case -1: /* No chip selected */
                 return;
@@ -70,29 +68,27 @@ public class SelectorClickListener implements EventHandler<MouseEvent> {
         }
 
 		/* Add bet to server */
-        Coord[] selection = gameCtrl.coordToSelection.get(coord);
-        BigDecimal betAmount = gameCtrl.chipAmounts[gameCtrl.currChip];
+        Coordinate[] selection = gameCtrl.coordToSelection.get(coordinate);
+        Double betAmount = gameCtrl.chipAmounts[gameCtrl.currChip];
         gameCtrl.currChip = -1;
         int payout = (36 / selection.length) - 1;
         System.out.printf("library.Bet: %f Payout: %d to 1\n", betAmount, payout);
 
-        HashSet<Integer> winningNumbers = new HashSet<Integer>();
+        HashSet<Integer> winningNumbers = new HashSet<>();
         Arrays.asList(selection).forEach(c -> winningNumbers.add(gameCtrl.coordToNumber.get(c)));
 
-        Bet b;
+        Bet bet;
         try {
-            b = gameCtrl.client.authPlayer.makeBet(gameCtrl.client.serverGame, betAmount, payout, winningNumbers, gameCtrl.coordToDescription(coord));
-            //TODO
-        } catch (RemoteException e) {
+            bet = gameCtrl.client.player.makeBet(betAmount, payout, winningNumbers, gameCtrl.coordinateToDescription(coordinate));
+        } catch (Exception e) {
+            e.getMessage();
             e.printStackTrace();
             return;
         }
 
-        gameCtrl.addBet(b);
-        gameCtrl.betToChip.put(b, chip);
-
-        //TODO
-//		gameController.balanceText.setText(String.format("%.8f฿", newBalance));
+        gameCtrl.addBet(bet);
+        gameCtrl.betToChip.put(bet, chip);
+        gameCtrl.balanceText.setText(String.format("\u20AC %.2f", gameCtrl.client.player.getBalance()));
     }
 
 }

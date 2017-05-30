@@ -2,6 +2,7 @@ package messaging;
 
 
 import com.sun.media.jfxmedia.logging.Logger;
+import library.Player;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -48,5 +49,33 @@ public class MessageSenderGateway {
         } catch (JMSException e) {
             System.err.print(e.getMessage());
         }
+    }
+
+    public ObjectMessage createObjectMessage(String username) {
+        ObjectMessage objectMessage = null;
+        try {
+            objectMessage = session.createObjectMessage();
+            objectMessage.setObject(username);
+            objectMessage.setJMSType("login");
+            producer.send(objectMessage);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return objectMessage;
+
+    }
+
+    public ObjectMessage createObjectMessage(Player player) {
+        ObjectMessage objectMessage = null;
+        try {
+            objectMessage = session.createObjectMessage();
+            objectMessage.setObject(player);
+            objectMessage.setJMSType("player");
+            producer.send(objectMessage);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return objectMessage;
+
     }
 }

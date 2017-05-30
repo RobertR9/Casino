@@ -1,5 +1,6 @@
 package jms;
 
+import library.Player;
 import library.Lobby;
 
 import javax.jms.*;
@@ -48,13 +49,14 @@ public class TopicSenderGateway {
         return message;
     }
 
-    public Message createObjectMessage(Lobby lobby) {
-        Message message = null;
+    public ObjectMessage createObjectMessage(Player player) {
+        ObjectMessage message = null;
         try {
             message = session.createObjectMessage();
+            message.setObject(player);
 
         } catch (JMSException e) {
-
+            e.printStackTrace();
         }
         return message;
     }

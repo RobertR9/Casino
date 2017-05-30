@@ -1,5 +1,5 @@
 package library;
 
 public interface LoginServer {
-    public Object[] login(String username);
+    public Object[] login(String text, String username);
 }

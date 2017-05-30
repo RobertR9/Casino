@@ -10,20 +10,22 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import library.AuthPlayer;
-import library.Lobby;
-import lobby.LobbyController;
+import jms.ClientGateway;
+import library.Player;
 import org.controlsfx.control.ButtonBar;
 import org.controlsfx.control.ButtonBar.ButtonType;
 import org.controlsfx.control.action.AbstractAction;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.dialog.Dialog;
 
-import java.rmi.RemoteException;
-
 public class LoginController {
 
     private Client client;
+
+    private static ClientGateway clientGateway;
+
+    @FXML
+    public TextField usernameField;
 
     public LoginController(Client client) {
         this.client = client;
@@ -31,7 +33,7 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-
+        clientGateway = new ClientGateway();
     }
 
     public void dialog(String barTitle, String title, Action action, TextField username, PasswordField password, Label validationError) {
@@ -83,68 +85,19 @@ public class LoginController {
 
     }
 
-    public void login() {
+    @FXML
+    protected void handleLoginButtonAction(ActionEvent event) {
+        clientGateway.handleLogin(usernameField.getText());
+        client.player = new Player(1L, usernameField.getText(), 1000d);
+        client.setGameScene();
+//        Boolean loginCheck = databaseConnector.checkUser(usernameField.getText(), passwordField.getText());
 
-        final TextField username = new TextField();
-        final PasswordField password = new PasswordField();
-        final Label validationError = new Label("Wrong username/password.");
-
-        final Action action = new AbstractAction("Login") {
-
-            public void handle(ActionEvent ae) {
-                Dialog d = (Dialog) ae.getSource();
-
-                try {
-                    Object[] login = client.loginServer.login(username.getText(), password.getText());
-
-                    if (login == null) {
-                        throw new RemoteException("Invalid username or password");
-                    }
-
-                    client.authPlayer = (AuthPlayer) login[0];
-                    Lobby lobby = (Lobby) login[1];
-                    client.lobbyController = new LobbyController(client, lobby);
-                    client.setLobbyScene();
-
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                    /* Wrong username pass */
-                    validationError.setVisible(true);
-                    password.clear();
-                    return;
-                }
-                d.hide();
-            }
-        };
-
-        dialog("Login", "Login to Roulette", action, username, password, validationError);
-
-    }
-
-    public void register() {
-        final TextField username = new TextField();
-        final PasswordField password = new PasswordField();
-        final Label validationError = new Label("Username already taken.");
-
-        final Action action = new AbstractAction("Register") {
-            /* This method is called when the login button is clicked */
-            public void handle(ActionEvent ae) {
-                Dialog d = (Dialog) ae.getSource();
-
-                try {
-                    client.loginServer.register(username.getText(), password.getText());
-                } catch (RemoteException e) {
-
-                    //TODO set to e.message.  username taken? password too short?
-                    /* Wrong username pass */
-                    validationError.setVisible(true);
-                    password.clear();
-                    return;
-                }
-                d.hide();
-            }
-        };
-
-        dialog("Register", "Register for Roulette", action, username, password, validationError);
+//        if (loginCheck) {
+//            Context.getInstance().currentUser().setUsername(usernameField.getText());
+//            Context.getInstance().currentUser().setPassword(passwordField.getText());
+//            this.redirectFrame();
+//        } else {
+//            this.errorLogin();
+//        }
     }
 }

@@ -1,19 +1,48 @@
 package library;
 
-import java.math.BigDecimal;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.util.Set;
 
-public interface Bet extends Remote {
-	
-	public int getPayout() throws RemoteException;
-	
-	public BigDecimal getAmount() throws RemoteException;
-	
-	public boolean cameTrue(int resultOfSpin) throws RemoteException;
-	
-	public String getDescription() throws RemoteException;
-	
-	public OtherPlayer getPlayer() throws RemoteException;
-	
+
+public class Bet {
+
+    private static final long serialVersionUID = 1L;
+
+    private Player player;
+
+    private int payout;
+
+    private Double amount;
+
+    private Set<Integer> winning;
+
+    private String description;
+
+    public Bet(Double amount, int payout, Set<Integer> winning, String description, Player player) {
+        this.payout = payout;
+        this.amount = amount;
+        this.winning = winning;
+        this.description = description;
+        this.player = player;
+    }
+
+    public int getPayout() {
+        return payout;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public boolean cameTrue(int resultOfSpin) {
+        return winning.contains(resultOfSpin);
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Player getPlayer() {
+        return this.player;
+    }
 }
+

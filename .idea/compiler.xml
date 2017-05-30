@@ -14,7 +14,7 @@
     <bytecodeTargetLevel>
       <module name="Casino" target="1.8" />
       <module name="CasinoClient" target="1.8" />
-      <module name="CasinoServer" target="1.5" />
+      <module name="CasinoServer" target="1.8" />
       <module name="Shared" target="1.8" />
     </bytecodeTargetLevel>
   </component>

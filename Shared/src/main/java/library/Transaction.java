@@ -5,13 +5,13 @@ import java.rmi.RemoteException;
 
 public interface Transaction {
 
-	public long getTransactionId() throws RemoteException;
+	public long getTransactionId() ;
 
-	public String getTxHash() throws RemoteException;
+	public String getTxHash() ;
 
-	public BigDecimal getAmount() throws RemoteException;
+	public BigDecimal getAmount() ;
 
-	public long getDateEpoch() throws RemoteException;
+	public long getDateEpoch() ;
 
-	public long getConfirmations() throws RemoteException;
+	public long getConfirmations() ;
 }

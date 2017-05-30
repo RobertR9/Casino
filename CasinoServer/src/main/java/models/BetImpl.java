@@ -1,12 +1,12 @@
 package models;
 
-import library.Bet;
+import library.Player;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
 
-public class BetImpl implements Bet {
+public class BetImpl  {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,7 +48,7 @@ public class BetImpl implements Bet {
         return description;
     }
 
-    public OtherPlayer getPlayer() {
+    public Player getPlayer() {
         return null;
     }
 

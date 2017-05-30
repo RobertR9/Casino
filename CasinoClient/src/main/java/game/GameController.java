@@ -7,7 +7,6 @@ import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.animation.RotateTransition;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,8 +14,10 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -27,20 +28,13 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import library.Bet;
 import library.ClientGame;
-import library.ServerGame;
 
-import java.math.BigDecimal;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-public class GameController extends UnicastRemoteObject implements ClientGame {
-
-    private static final long serialVersionUID = -5860501913483886928L;
+public class GameController implements ClientGame {
 
     @FXML
     public AnchorPane boardPane;
@@ -63,15 +57,15 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
     @FXML
     public ImageView blackChip;
     @FXML
-    public TextField whiteChipAmt;
+    public Label whiteChipAmt;
     @FXML
-    public TextField redChipAmt;
+    public Label redChipAmt;
     @FXML
-    public TextField blueChipAmt;
+    public Label blueChipAmt;
     @FXML
-    public TextField greenChipAmt;
+    public Label greenChipAmt;
     @FXML
-    public TextField blackChipAmt;
+    public Label blackChipAmt;
     @FXML
     public TableView<Bet> betTable;
     @FXML
@@ -80,56 +74,41 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
     public TableColumn<Bet, String> descriptionColumn;
     @FXML
     public TableColumn<Bet, Button> deleteColumn;
-    @FXML
-    public Button accountBtn;
-    @FXML
-    private Button lobbyBtn;
-
 
     public Client client;
-    public ServerGame serverGame;
-    public Coord[] numberToCoord = new Coord[37];
-    public HashMap<Coord, Integer> coordToNumber = new HashMap<Coord, Integer>();
-    public HashMap<Coord, Coord[]> coordToSelection = new HashMap<Coord, Coord[]>();
-    public HashMap<Coord, String> specialDescriptions = new HashMap<Coord, String>();
-    public ObservableList<Bet> bets = FXCollections.observableArrayList();
-    public BigDecimal[] chipAmounts = new BigDecimal[]{new BigDecimal(.05), new BigDecimal(.1), new BigDecimal(.2), new BigDecimal(.3), new BigDecimal(4)};
+    private Coordinate[] numberToCoordinate;
+    public HashMap<Coordinate, Integer> coordToNumber;
+    public HashMap<Coordinate, Coordinate[]> coordToSelection;
+    private HashMap<Coordinate, String> specialDescriptions;
+    private ObservableList<Bet> bets = FXCollections.observableArrayList();
+    public Double[] chipAmounts = new Double[]{5d, 10d, 20d, 50d, 100d};
     public int currChip = -1;
     public ImageView[] chips;
     public ImageView floatingChip = new ImageView();
     public Group chipsOnBoard = new Group();
-    public HashMap<Bet, ImageView> betToChip = new HashMap<Bet, ImageView>();
+    public HashMap<Bet, ImageView> betToChip = new HashMap<>();
 
-
-    public GameController(Client client, ServerGame serverGame) throws RemoteException {
+    public GameController(Client client) {
+        super();
         this.client = client;
-        this.serverGame = serverGame;
+        coordToSelection = new HashMap<>();
+        specialDescriptions = new HashMap<>();
+        coordToNumber = new HashMap<>();
+        numberToCoordinate = new Coordinate[37];
     }
 
     /* Called after scene graph loads */
     public void initialize() {
-
-        accountBtn.setOnMouseClicked((e) -> client.setAccountScene());
-        lobbyBtn.setOnMouseClicked((e) -> client.setLobbyScene());
-
-		
-		/* library.Bet table */
+        // library.Bet table
         betTable.setPlaceholder(new Label("No Bets Placed"));
         betTable.setItems(bets);
-        amountColumn.setCellValueFactory(new PropertyValueFactory<Bet, Double>("amount"));
-        descriptionColumn.setCellValueFactory(new PropertyValueFactory<Bet, String>("description"));
-        deleteColumn.setCellValueFactory(new Callback<CellDataFeatures<Bet, Button>, ObservableValue<Button>>() {
-            public ObservableValue<Button> call(CellDataFeatures<Bet, Button> p) {
-                Button button = new Button("Delete");
-                button.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    public void handle(MouseEvent arg0) {
-                        deleteBet(p.getValue());
-                    }
-                });
-                return new ReadOnlyObjectWrapper<Button>(button);
-            }
+        amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        deleteColumn.setCellValueFactory(p -> {
+            Button button = new Button("Delete");
+            button.setOnMouseClicked(arg0 -> deleteBet(p.getValue()));
+            return new ReadOnlyObjectWrapper<>(button);
         });
-
 
         floatingChip.setMouseTransparent(true);
         floatingChip.setFitHeight(40);
@@ -137,28 +116,17 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
         boardPane.getChildren().add(chipsOnBoard);
         boardPane.getChildren().add(floatingChip);
 
-        grid.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent arg0) {
-                if (currChip != -1) {
-                    floatingChip.setVisible(true);
-                }
+        grid.setOnMouseEntered(arg0 -> {
+            if (currChip != -1) {
+                floatingChip.setVisible(true);
             }
         });
 
-        grid.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent arg0) {
-                floatingChip.setVisible(false);
-            }
-        });
+        grid.setOnMouseExited(arg0 -> floatingChip.setVisible(false));
 
-        grid.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                floatingChip.setX(event.getSceneX() - 370);
-                floatingChip.setY(event.getSceneY() - 23);
-            }
+        grid.setOnMouseMoved(event -> {
+            floatingChip.setX(event.getSceneX() - 370);
+            floatingChip.setY(event.getSceneY() - 23);
         });
 
         whiteChipAmt.setText(chipAmounts[0] + "");
@@ -169,26 +137,26 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
 
         this.chips = new ImageView[]{whiteChip, redChip, blueChip, greenChip, blackChip};
 
-        specialDescriptions.put(new Coord(8, 9), "Red");
-        specialDescriptions.put(new Coord(8, 13), "Black");
-        specialDescriptions.put(new Coord(7, 1), "1-12");
-        specialDescriptions.put(new Coord(7, 9), "13-24");
-        specialDescriptions.put(new Coord(7, 17), "25-36");
-        specialDescriptions.put(new Coord(8, 1), "1-18");
-        specialDescriptions.put(new Coord(8, 5), "Even");
-        specialDescriptions.put(new Coord(8, 17), "Odd");
-        specialDescriptions.put(new Coord(8, 21), "19-36");
-        specialDescriptions.put(new Coord(5, 24), "1st Column");
-        specialDescriptions.put(new Coord(3, 24), "2nd Column");
-        specialDescriptions.put(new Coord(1, 24), "3rd Column");
+        specialDescriptions.put(new Coordinate(8, 9), "Red");
+        specialDescriptions.put(new Coordinate(8, 13), "Black");
+        specialDescriptions.put(new Coordinate(7, 1), "1-12");
+        specialDescriptions.put(new Coordinate(7, 9), "13-24");
+        specialDescriptions.put(new Coordinate(7, 17), "25-36");
+        specialDescriptions.put(new Coordinate(8, 1), "1-18");
+        specialDescriptions.put(new Coordinate(8, 5), "Even");
+        specialDescriptions.put(new Coordinate(8, 17), "Odd");
+        specialDescriptions.put(new Coordinate(8, 21), "19-36");
+        specialDescriptions.put(new Coordinate(5, 24), "1st Column");
+        specialDescriptions.put(new Coordinate(3, 24), "2nd Column");
+        specialDescriptions.put(new Coordinate(1, 24), "3rd Column");
 
 		/* Get coordinate for each number */
         int num = 0;
         int row = 5;
         int col = 1;
         while (++num <= 36) {
-            Coord c = new Coord(row, col);
-            numberToCoord[num] = c;
+            Coordinate c = new Coordinate(row, col);
+            numberToCoordinate[num] = c;
             coordToNumber.put(c, num);
             if (row == 1) {
                 col += 2;
@@ -199,142 +167,132 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
         }
 
 		/* 0 selector */
-        numberToCoord[0] = new Coord(1, 0);
-        coordToNumber.put(new Coord(1, 0), 0);
+        numberToCoordinate[0] = new Coordinate(1, 0);
+        coordToNumber.put(new Coordinate(1, 0), 0);
 
 		/* Each number selects itself */
-        Arrays.asList(numberToCoord).forEach(c -> coordToSelection.put(c, new Coord[]{c}));
+        Arrays.asList(numberToCoordinate).forEach(c -> coordToSelection.put(c, new Coordinate[]{c}));
 
 		/* Top and bottom selectors for whole column */
         for (col = 1; col <= 23; col += 2) {
-            Coord[] coords = new Coord[]{
-                    new Coord(1, col),
-                    new Coord(3, col),
-                    new Coord(5, col)
+            Coordinate[] coordinates = new Coordinate[]{
+                    new Coordinate(1, col),
+                    new Coordinate(3, col),
+                    new Coordinate(5, col)
             };
-            coordToSelection.put(new Coord(0, col), coords);
-            coordToSelection.put(new Coord(6, col), coords);
+            coordToSelection.put(new Coordinate(0, col), coordinates);
+            coordToSelection.put(new Coordinate(6, col), coordinates);
         }
 
 		/* Top and bottom selectors for double column */
         for (col = 2; col <= 22; col += 2) {
-            Coord[] coords = new Coord[]{
-                    new Coord(1, col - 1),
-                    new Coord(1, col + 1),
-                    new Coord(3, col - 1),
-                    new Coord(3, col + 1),
-                    new Coord(5, col - 1),
-                    new Coord(5, col + 1)
+            Coordinate[] coordinates = new Coordinate[]{
+                    new Coordinate(1, col - 1),
+                    new Coordinate(1, col + 1),
+                    new Coordinate(3, col - 1),
+                    new Coordinate(3, col + 1),
+                    new Coordinate(5, col - 1),
+                    new Coordinate(5, col + 1)
             };
-            coordToSelection.put(new Coord(0, col), coords);
-            coordToSelection.put(new Coord(6, col), coords);
+            coordToSelection.put(new Coordinate(0, col), coordinates);
+            coordToSelection.put(new Coordinate(6, col), coordinates);
         }
 
 		/* Four selectors */
         for (int r : new int[]{2, 4}) {
             for (int c = 2; c <= 22; c += 2) {
-                coordToSelection.put(new Coord(r, c), new Coord[]{new Coord(r - 1, c - 1), new Coord(r - 1, c + 1), new Coord(r + 1, c + 1), new Coord(r + 1, c - 1)});
+                coordToSelection.put(new Coordinate(r, c), new Coordinate[]{new Coordinate(r - 1, c - 1), new Coordinate(r - 1, c + 1), new Coordinate(r + 1, c + 1), new Coordinate(r + 1, c - 1)});
             }
         }
 
 		/* Two selectors (vertical) */
         for (int r : new int[]{2, 4}) {
             for (int c = 1; c <= 23; c += 2) {
-                coordToSelection.put(new Coord(r, c), new Coord[]{new Coord(r - 1, c), new Coord(r + 1, c)});
+                coordToSelection.put(new Coordinate(r, c), new Coordinate[]{new Coordinate(r - 1, c), new Coordinate(r + 1, c)});
             }
         }
 
 		/* Two selectors (horizontal) */
         for (int r : new int[]{1, 3, 5}) {
             for (int c = 2; c <= 22; c += 2) {
-                coordToSelection.put(new Coord(r, c), new Coord[]{new Coord(r, c - 1), new Coord(r, c + 1)});
+                coordToSelection.put(new Coordinate(r, c), new Coordinate[]{new Coordinate(r, c - 1), new Coordinate(r, c + 1)});
             }
         }
 
 		/* 1-12 selector */
-        Coord[] ray = new Coord[12];
-        for (int i = 1; i <= 12; i++) {
-            ray[i - 1] = numberToCoord[i];
-        }
-        coordToSelection.put(new Coord(7, 1), ray);
+        Coordinate[] ray = new Coordinate[12];
+        System.arraycopy(numberToCoordinate, 1, ray, 0, 12);
+        coordToSelection.put(new Coordinate(7, 1), ray);
 
 		/* 13-24 selector */
-        ray = new Coord[12];
-        for (int i = 13; i <= 24; i++) {
-            ray[i - 13] = numberToCoord[i];
-        }
-        coordToSelection.put(new Coord(7, 9), ray);
+        ray = new Coordinate[12];
+        System.arraycopy(numberToCoordinate, 13, ray, 0, 12);
+        coordToSelection.put(new Coordinate(7, 9), ray);
 
 		/* 25-36 selector */
-        ray = new Coord[12];
-        for (int i = 25; i <= 36; i++) {
-            ray[i - 25] = numberToCoord[i];
-        }
-        coordToSelection.put(new Coord(7, 17), ray);
+        ray = new Coordinate[12];
+        System.arraycopy(numberToCoordinate, 25, ray, 0, 12);
+        coordToSelection.put(new Coordinate(7, 17), ray);
 
 		/* 1-18 selector */
-        ray = new Coord[18];
-        for (int i = 1; i <= 18; i++) {
-            ray[i - 1] = numberToCoord[i];
-        }
-        coordToSelection.put(new Coord(8, 1), ray);
+        ray = new Coordinate[18];
+        System.arraycopy(numberToCoordinate, 1, ray, 0, 18);
+        coordToSelection.put(new Coordinate(8, 1), ray);
 
 		/* 19-36 selector */
-        ray = new Coord[18];
-        for (int i = 19; i <= 36; i++) {
-            ray[i - 19] = numberToCoord[i];
-        }
-        coordToSelection.put(new Coord(8, 21), ray);
+        ray = new Coordinate[18];
+        System.arraycopy(numberToCoordinate, 19, ray, 0, 18);
+        coordToSelection.put(new Coordinate(8, 21), ray);
 
 		/* Parity selector */
-        Coord[] evenCoords = new Coord[18];
-        Coord[] oddCoords = new Coord[18];
+        Coordinate[] evenCoordinates = new Coordinate[18];
+        Coordinate[] oddCoordinates = new Coordinate[18];
         int eIdx = 0;
         int oIdx = 0;
 
         for (int i = 1; i <= 36; i++) {
             if (i % 2 == 0)
-                evenCoords[eIdx++] = numberToCoord[i];
+                evenCoordinates[eIdx++] = numberToCoordinate[i];
             else
-                oddCoords[oIdx++] = numberToCoord[i];
+                oddCoordinates[oIdx++] = numberToCoordinate[i];
         }
-        coordToSelection.put(new Coord(8, 5), evenCoords);
-        coordToSelection.put(new Coord(8, 17), oddCoords);
+        coordToSelection.put(new Coordinate(8, 5), evenCoordinates);
+        coordToSelection.put(new Coordinate(8, 17), oddCoordinates);
 
-		/* Red/Black selector */
-        List<Coord> redCoords = new ArrayList<Coord>();
-        List<Coord> blackCoords = new ArrayList<Coord>();
-        Coord[] redRay = new Coord[18];
-        Coord[] blackRay = new Coord[18];
-		
+        // Red/Black selector
+        List<Coordinate> redCoordinates = new ArrayList<>();
+        List<Coordinate> blackCoordinates = new ArrayList<>();
+        Coordinate[] redRay = new Coordinate[18];
+        Coordinate[] blackRay = new Coordinate[18];
+
 		/* Reds */
         Arrays.asList(2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35).forEach
-                (i -> redCoords.add(numberToCoord[i]));
-		
+                (i -> redCoordinates.add(numberToCoordinate[i]));
+
 		/* Blacks */
         Arrays.asList(1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36).forEach
-                (i -> blackCoords.add(numberToCoord[i]));
+                (i -> blackCoordinates.add(numberToCoordinate[i]));
 
-        coordToSelection.put(new Coord(8, 9), redCoords.toArray(redRay));
-        coordToSelection.put(new Coord(8, 13), blackCoords.toArray(blackRay));
+        coordToSelection.put(new Coordinate(8, 9), redCoordinates.toArray(redRay));
+        coordToSelection.put(new Coordinate(8, 13), blackCoordinates.toArray(blackRay));
 
 		/* '1st','2nd','3rd' column selectors */
-        Coord[] first = new Coord[12];
-        Coord[] second = new Coord[12];
-        Coord[] third = new Coord[12];
+        Coordinate[] first = new Coordinate[12];
+        Coordinate[] second = new Coordinate[12];
+        Coordinate[] third = new Coordinate[12];
         int firstIdx = 0, secondIdx = 0, thirdIdx = 0;
         for (int i = 1; i <= 36; i++) {
             if (i % 3 == 0) {
-                third[thirdIdx++] = numberToCoord[i];
+                third[thirdIdx++] = numberToCoordinate[i];
             } else if (i % 3 == 2) {
-                second[secondIdx++] = numberToCoord[i];
+                second[secondIdx++] = numberToCoordinate[i];
             } else {
-                first[firstIdx++] = numberToCoord[i];
+                first[firstIdx++] = numberToCoordinate[i];
             }
         }
-        coordToSelection.put(new Coord(5, 24), first);
-        coordToSelection.put(new Coord(3, 24), second);
-        coordToSelection.put(new Coord(1, 24), third);
+        coordToSelection.put(new Coordinate(5, 24), first);
+        coordToSelection.put(new Coordinate(3, 24), second);
+        coordToSelection.put(new Coordinate(1, 24), third);
 
 		/* Listeners */
         for (Node n : grid.getChildren()) {
@@ -350,18 +308,18 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
         greenChip.setOnMouseClicked(chipClick);
         blackChip.setOnMouseClicked(chipClick);
 
-//		try {
-//			balanceText.setText(String.format("%.8f฿", client.authPlayer.getBalance()));
-//		} catch (RemoteException e) {
-//			e.printStackTrace();
-//		}
+        try {
+            balanceText.setText(String.format("\u20AC %.2f", client.player.getBalance()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         ball.setCenterX(-45);
-        ball.setCenterY(13);//TODO not this
+        ball.setCenterY(13);
 
     }
 
-    public Node getPaneFromCoord(int row, int col) {
+    public Node getPaneFromCoordinate(int row, int col) {
         for (Node n : grid.getChildren()) {
             if (GridPane.getRowIndex(n) == row && GridPane.getColumnIndex(n) == col)
                 return n;
@@ -369,18 +327,19 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
         return null;
     }
 
-
-    public void spin(ActionEvent e) {
+    //TODO: MOVE this to server and result to topic
+    @FXML
+    void handleSpinAction(ActionEvent e) {
         wheel.setRotate(0);
 
         Path path = new Path();
         path.getElements().add(new MoveTo(0, 0));
-			
+
 		/* The wheel is a 16 slice pizza */
         double radius = 110;
         double[] xs = new double[]{-45, -75, -101, -110, -102, -69, -47, 0, 43, 76, 105, 115, 108, 80, 50, 0};
         double[] ys = new double[]{13, 35, 70, 105, 155, 201, 215, 228, 222, 202, 160, 115, 80, 33, 12, 0};
-		
+
 		/* Choose a random slice for ball to finish on */
         int ballPos = (int) (Math.random() * 16);
         int spins = 12;
@@ -418,18 +377,17 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
         bets.add(b);
     }
 
-    public void deleteBet(Bet bet) {
+    private void deleteBet(Bet bet) {
         bets.remove(bet);
         chipsOnBoard.getChildren().remove(betToChip.get(bet));
     }
 
-    public String coordToDescription(Coord coord) {
-        String description = "";
-        if (specialDescriptions.containsKey(coord)) {
-            return specialDescriptions.get(coord);
+    public String coordinateToDescription(Coordinate coordinate) {
+        if (specialDescriptions.containsKey(coordinate)) {
+            return specialDescriptions.get(coordinate);
         } else {
             HashSet<Integer> winningNumbers = new HashSet<>();
-            Arrays.asList(coordToSelection.get(coord)).forEach
+            Arrays.asList(coordToSelection.get(coordinate)).forEach
                     (c -> winningNumbers.add(coordToNumber.get(c)));
 
             String stringRay = winningNumbers.toString();
@@ -437,14 +395,18 @@ public class GameController extends UnicastRemoteObject implements ClientGame {
         }
     }
 
-    public void spin(int result) throws RemoteException {
-        // TODO Auto-generated method stub
+    @FXML
+    public void handleBetAction() {
+        for (Bet bet : this.bets) {
+            if (bet.getPlayer().getId().equals(client.player.getId())) {
+                //TODO:: Send bet to server through JMS
+            }
+        }
 
     }
 
     @Override
-    public void betAdded(Bet b, OtherPlayer p) throws RemoteException {
-        // TODO Auto-generated method stub
+    public void spin(int result) {
 
     }
 }

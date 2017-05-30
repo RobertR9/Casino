@@ -15,14 +15,14 @@
 //	private Lobby lobby;
 ////	private BitcoindInterface bitcoin;
 //
-//	protected LoginServerImpl( SessionFactory sessionFactory) throws RemoteException {
+//	protected LoginServerImpl( SessionFactory sessionFactory)  {
 //		super();
 //		this.sessionFactory = sessionFactory;
 //		this.lobby = new LobbyImpl(sessionFactory);
 //	}
 //
 //	@Override
-//	public synchronized boolean register(String username, String password) throws RemoteException {
+//	public synchronized boolean register(String username, String password)  {
 //
 //		Session session = sessionFactory.openSession();
 //		session.beginTransaction();
@@ -63,7 +63,7 @@
 //	}
 //
 //	@Override
-//	public Object[] login(String username, String password) throws RemoteException {
+//	public Object[] login(String username, String password)  {
 //
 //		Session session = sessionFactory.openSession();
 //		session.beginTransaction();

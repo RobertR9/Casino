@@ -1,7 +1,7 @@
 package game.listeners;
 
 
-import game.Coord;
+import game.Coordinate;
 import game.GameController;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -28,10 +28,10 @@ public class SelectorExitListener implements EventHandler<Event> {
         int row = GridPane.getRowIndex(p);
         int col = GridPane.getColumnIndex(p);
 
-        Coord[] selection = gameCtrl.coordToSelection.get(new Coord(row, col));
+        Coordinate[] selection = gameCtrl.coordToSelection.get(new Coordinate(row, col));
         if (selection != null) {
-            for (Coord c : selection) {
-                Node n = gameCtrl.getPaneFromCoord(c.row, c.col);
+            for (Coordinate c : selection) {
+                Node n = gameCtrl.getPaneFromCoordinate(c.row, c.col);
                 n.setEffect(new ColorAdjust());
                 n.setStyle("-fx-border-color: transparent;\n");
 

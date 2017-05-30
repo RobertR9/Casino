@@ -1,10 +1,10 @@
 package game;
 
 
-public class Coord{
+public class Coordinate {
 	public int row;
 	public int col;
-	public Coord(int row, int col){
+	public Coordinate(int row, int col){
 		this.row = row;
 		this.col = col;
 	}
@@ -14,8 +14,8 @@ public class Coord{
 	}
 	@Override
 	public boolean equals(Object o){
-		return	(o instanceof Coord) &&
-				(this.row == ((Coord)o).row) &&
-				(this.col == ((Coord)o).col);
+		return	(o instanceof Coordinate) &&
+				(this.row == ((Coordinate)o).row) &&
+				(this.col == ((Coordinate)o).col);
 	}
 }

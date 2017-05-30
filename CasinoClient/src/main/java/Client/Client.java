@@ -1,42 +1,35 @@
 package Client;
 
-import account.AccountController;
 import game.GameController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import library.AuthPlayer;
 import library.LoginServer;
+import library.Player;
 import library.ServerGame;
-import lobby.LobbyController;
 import login.LoginController;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 
 public class Client extends Application {
     public Stage stage;
     public LoginServer loginServer;
-    public AuthPlayer authPlayer;
+    public Player player;
     public ServerGame serverGame;
-    public LobbyController lobbyController;
 
     public Client() {
         try {
-            Registry registry = LocateRegistry.getRegistry();
+//            Registry registry = LocateRegistry.getRegistry();
 //            this.loginServer = (LoginServer) registry.lookup("RouletteServer");
             this.loginServer = null;
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void start(Stage stage) {
-
         this.stage = stage;
         stage.setResizable(false);
         stage.setWidth(1024);
@@ -47,10 +40,9 @@ public class Client extends Application {
     }
 
     private void setLoginScene() {
-
         FXMLLoader loginFxml = new FXMLLoader();
         loginFxml.setLocation(getClass().getResource("/Login.fxml"));
-        System.err.print("LOGINFXML=" +  loginFxml.toString());
+        System.err.print("LOGINFXML=" + loginFxml.toString());
         loginFxml.setController(new LoginController(this));
         Scene loginScene;
         try {
@@ -65,7 +57,7 @@ public class Client extends Application {
     public void setLobbyScene() {
 
         FXMLLoader lobbyFxml = new FXMLLoader(getClass().getResource("/Lobby.fxml"));
-        lobbyFxml.setController(lobbyController);
+        System.err.print("LOBBYFXML=" + lobbyFxml.toString());
         Scene lobbyScene;
         try {
             lobbyScene = new Scene(lobbyFxml.load());
@@ -77,42 +69,17 @@ public class Client extends Application {
     }
 
     public void setGameScene() {
-
-        if (serverGame == null) {
-            System.err.println("No game loaded. Can't switch to game scene.");
-            return;
-        }
-
-        FXMLLoader gameFxml = new FXMLLoader(getClass().getResource("Game.fxml"));
-        try {
-            GameController gameController = new GameController(this, serverGame);
-            gameFxml.setController(gameController);
-        } catch (RemoteException e1) {
-            e1.printStackTrace();
-        }
+        FXMLLoader gameFxml = new FXMLLoader(getClass().getResource("/Game.fxml"));
         Scene gameScene;
         try {
+            GameController gameController = new GameController(this);
+            gameFxml.setController(gameController);
             gameScene = new Scene(gameFxml.load());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
         stage.setScene(gameScene);
-    }
-
-    public void setAccountScene() {
-
-        FXMLLoader accountFxml = new FXMLLoader(getClass().getResource("Account.fxml"));
-        accountFxml.setController(new AccountController(this));
-        Scene accountScene;
-        try {
-            accountScene = new Scene(accountFxml.load());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        stage.setScene(accountScene);
-
     }
 
     public static void main(String[] args) {
