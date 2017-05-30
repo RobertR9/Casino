@@ -1,6 +1,8 @@
 package library;
 
-public class Result {
+import java.io.Serializable;
+
+public class Result implements Serializable {
 
     private Integer number;
     private String color;

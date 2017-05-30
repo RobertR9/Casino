@@ -16,9 +16,7 @@ public class SpinFinishedListener implements EventHandler<ActionEvent> {
 
     @Override
     public void handle(ActionEvent event) {
-        serverController.addResult(new Result(result,"test"));
-        //TODO;
-
+        serverController.addResult(new Result(result, "test"));
     }
 
 }

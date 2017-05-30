@@ -22,6 +22,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import jms.TopicSenderGateway;
 import library.Bet;
 import library.Result;
 import listeners.SpinFinishedListener;
@@ -74,15 +75,17 @@ public class ServerController {
     @FXML
     public TableColumn<Result, String> colorColumn;
 
-    public Server server;
+    private Server server;
     private ObservableList<Bet> bets = FXCollections.observableArrayList();
     private ObservableList<Result> results = FXCollections.observableArrayList();
+    private TopicSenderGateway topicSenderGateway = new TopicSenderGateway("RouletteResults");
 
     public ServerController(Server Server) {
         this.server = server;
     }
 
     /* Called after scene graph loads */
+    @SuppressWarnings("unused")
     public void initialize() {
         // library.Bet table
         betTable.setPlaceholder(new Label("No Bets Placed"));
@@ -93,7 +96,6 @@ public class ServerController {
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         numberColumn.setCellValueFactory(new PropertyValueFactory<>("number"));
         colorColumn.setCellValueFactory(new PropertyValueFactory<>("color"));
-
 
         ball.setCenterX(-45);
         ball.setCenterY(13);
@@ -138,9 +140,11 @@ public class ServerController {
 
         int[] order = new int[]{0, 26, 3, 35, 12, 28, 7, 29, 18, 22, 9, 31, 14, 20, 1, 33, 16, 24, 5, 10, 23, 8, 30, 11, 36, 13, 27, 6, 34, 17, 25, 2, 21, 4, 19, 15, 32};
         int[] ballPosToOffset = new int[]{-1, 1, 3, 5, 7, 10, 13, 14, 17, 19, 21, 24, 26, 28, 31, 33, 35};
-        int result = order[(wheelPos + ballPosToOffset[ballPos]) % 37];
-        rt.setOnFinished(new SpinFinishedListener(this, result));
-        System.out.println("Result: " + result);
+        int winningNr = order[(wheelPos + ballPosToOffset[ballPos]) % 37];
+        Result result = new Result(winningNr, "groen");
+        rt.setOnFinished(new SpinFinishedListener(this, winningNr));
+        System.out.println("Result: " + winningNr);
+        topicSenderGateway.createObjectMessage(result);
     }
 
     public void addBet(Bet b) {

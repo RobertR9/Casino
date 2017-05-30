@@ -6,10 +6,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import jms.ServerGateway;
-import jms.TopicSenderGateway;
 import models.ServerGameImpl;
 
 public class Server extends Application {
+    private static ServerGateway serverGateway;
     private static ServerGameImpl serverGame;
     private Stage stage;
 
@@ -27,17 +27,16 @@ public class Server extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
         serverGame = new ServerGameImpl("Roulette");
         System.err.print("Starting server with game: " + serverGame.getName());
         try {
-            TopicSenderGateway topicSenderGateway = new TopicSenderGateway("CasinoLobby");
-            ServerGateway serverGateway = new ServerGateway();
+//            TopicSenderGateway topicSenderGateway = new TopicSenderGateway("CasinoLobby");
+            serverGateway = new ServerGateway();
         } catch (Exception e) {
             System.err.println("Exception binding RouletteServer:");
             e.printStackTrace();
         }
-
+        launch(args);
     }
 
     public void start(Stage stage) throws Exception {

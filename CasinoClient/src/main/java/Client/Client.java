@@ -19,16 +19,6 @@ public class Client extends Application {
     public Player player;
     public ServerGame serverGame;
 
-    public Client() {
-        try {
-//            Registry registry = LocateRegistry.getRegistry();
-//            this.loginServer = (LoginServer) registry.lookup("RouletteServer");
-            this.loginServer = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void start(Stage stage) {
         this.stage = stage;
         stage.setResizable(false);
@@ -72,8 +62,7 @@ public class Client extends Application {
         FXMLLoader gameFxml = new FXMLLoader(getClass().getResource("/Game.fxml"));
         Scene gameScene;
         try {
-            GameController gameController = new GameController(this);
-            gameFxml.setController(gameController);
+            gameFxml.setController(new GameController(this));
             gameScene = new Scene(gameFxml.load());
         } catch (Exception e) {
             e.printStackTrace();

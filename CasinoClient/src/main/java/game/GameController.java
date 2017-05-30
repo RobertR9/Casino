@@ -29,6 +29,8 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import jms.TopicListener;
+import jms.TopicReceiverGateway;
 import library.Bet;
 import library.ClientGame;
 
@@ -87,6 +89,8 @@ public class GameController implements ClientGame {
     public ImageView floatingChip = new ImageView();
     public Group chipsOnBoard = new Group();
     public HashMap<Bet, ImageView> betToChip = new HashMap<>();
+    private static TopicListener topicListener;
+    private static TopicReceiverGateway topicReceiverGateway;
 
     public GameController(Client client) {
         super();
@@ -98,7 +102,10 @@ public class GameController implements ClientGame {
     }
 
     /* Called after scene graph loads */
+    @SuppressWarnings("unused")
     public void initialize() {
+        topicListener = new TopicListener("RouletteResults");
+        topicReceiverGateway = new TopicReceiverGateway("RouletteResults", this.client.player.getUsername());
         // library.Bet table
         betTable.setPlaceholder(new Label("No Bets Placed"));
         betTable.setItems(bets);

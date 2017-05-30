@@ -11,20 +11,17 @@ public abstract class GateWay {
     private MessageSenderGateway sender;
     private MessageReceiverGateway receiver;
 
-
     public GateWay(String channelNameSender, String channelNameReceiver) {
         sender = new MessageSenderGateway(channelNameSender);
         receiver = new MessageReceiverGateway(channelNameReceiver);
 
         receiver.setListener(message -> {
             if (message instanceof ObjectMessage) {
+                System.err.print("GATEWAY = " + message);
                 try {
                     ObjectMessage objectMessage = (ObjectMessage) message;
                     switch (objectMessage.getJMSType()) {
-                        case "LoanRequest":
-                        case "LoanReply":
-                        case "BankInterestRequest":
-                        case "BankInterestReply":
+                        case "Result":
                             this.processObjectMessage(message);
                             break;
                         default:

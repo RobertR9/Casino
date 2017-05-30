@@ -1,7 +1,7 @@
 package jms;
 
 import library.Player;
-import library.Lobby;
+import library.Result;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -38,15 +38,22 @@ public class TopicSenderGateway {
         }
     }
 
-    public Message createObjectMessage(Lobby lobby) {
-        Message message = null;
+    public ObjectMessage createObjectMessage(Result result) {
+        ObjectMessage objectMessage = null;
         try {
-            message = session.createObjectMessage();
-
+            objectMessage = session.createObjectMessage();
+            objectMessage.setObject(result);
+            objectMessage.setJMSType("Result");
+            producer.send(objectMessage);
+            System.out.println(
+                    "JMSMessageID=" + objectMessage.getJMSMessageID() + "\n" +
+                            "JMStype=" + objectMessage.getJMSType() + "\n" +
+                            "JMSDestination=" + objectMessage.getJMSDestination() + "\n" +
+                            "Object: " + objectMessage.getObject() + "\n");
         } catch (JMSException e) {
-
+            e.printStackTrace();
         }
-        return message;
+        return objectMessage;
     }
 
     public ObjectMessage createObjectMessage(Player player) {
