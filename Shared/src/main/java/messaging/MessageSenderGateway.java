@@ -2,7 +2,9 @@ package messaging;
 
 
 import com.sun.media.jfxmedia.logging.Logger;
+import library.Bet;
 import library.Player;
+import library.Result;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -77,5 +79,31 @@ public class MessageSenderGateway {
         }
         return objectMessage;
 
+    }
+
+    public ObjectMessage createObjectMessage(Result result) {
+        ObjectMessage objectMessage = null;
+        try {
+            objectMessage = session.createObjectMessage();
+            objectMessage.setObject(result);
+            objectMessage.setJMSType("BetResult");
+            producer.send(objectMessage);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return objectMessage;
+    }
+
+    public ObjectMessage createObjectMessage(Bet bet) {
+        ObjectMessage objectMessage = null;
+        try {
+            objectMessage = session.createObjectMessage();
+            objectMessage.setObject(bet);
+            objectMessage.setJMSType("Bet");
+            producer.send(objectMessage);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return objectMessage;
     }
 }

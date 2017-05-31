@@ -80,6 +80,7 @@ public class SelectorClickListener implements EventHandler<MouseEvent> {
         Bet bet;
         try {
             bet = gameCtrl.client.player.makeBet(betAmount, payout, winningNumbers, gameCtrl.coordinateToDescription(coordinate));
+            System.err.print("\n Bet: " + bet + " \n");
         } catch (Exception e) {
             e.getMessage();
             e.printStackTrace();
@@ -88,7 +89,7 @@ public class SelectorClickListener implements EventHandler<MouseEvent> {
 
         gameCtrl.addBet(bet);
         gameCtrl.betToChip.put(bet, chip);
-        gameCtrl.balanceText.setText(String.format("\u20AC %.2f", gameCtrl.client.player.getBalance()));
+        gameCtrl.refreshBalanceText();
     }
 
 }

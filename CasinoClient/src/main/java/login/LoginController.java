@@ -33,7 +33,6 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        clientGateway = new ClientGateway();
     }
 
     public void dialog(String barTitle, String title, Action action, TextField username, PasswordField password, Label validationError) {
@@ -87,7 +86,7 @@ public class LoginController {
 
     @FXML
     protected void handleLoginButtonAction(ActionEvent event) {
-        clientGateway.handleLogin(usernameField.getText());
+//        clientGateway.handleLogin(usernameField.getText());
         client.player = new Player(1L, usernameField.getText(), 1000d);
         client.setGameScene();
 //        Boolean loginCheck = databaseConnector.checkUser(usernameField.getText(), passwordField.getText());

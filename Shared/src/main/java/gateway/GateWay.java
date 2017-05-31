@@ -17,11 +17,13 @@ public abstract class GateWay {
 
         receiver.setListener(message -> {
             if (message instanceof ObjectMessage) {
-                System.err.print("GATEWAY = " + message);
                 try {
                     ObjectMessage objectMessage = (ObjectMessage) message;
                     switch (objectMessage.getJMSType()) {
                         case "Result":
+                            this.processObjectMessage(message);
+                            break;
+                        case "BetResult":
                             this.processObjectMessage(message);
                             break;
                         default:

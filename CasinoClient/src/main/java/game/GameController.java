@@ -2,14 +2,14 @@ package game;
 
 
 import Client.Client;
-import game.listeners.*;
-import javafx.animation.Interpolator;
-import javafx.animation.PathTransition;
-import javafx.animation.RotateTransition;
+import game.listeners.ChipClickListener;
+import game.listeners.SelectorClickListener;
+import game.listeners.SelectorEnterListener;
+import game.listeners.SelectorExitListener;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -23,29 +23,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.shape.ArcTo;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
-import jms.TopicListener;
-import jms.TopicReceiverGateway;
+import jms.ClientGateway;
 import library.Bet;
-import library.ClientGame;
+import library.Result;
 
 import java.util.*;
 
-public class GameController implements ClientGame {
+public class GameController {
 
     @FXML
     public AnchorPane boardPane;
     @FXML
     public GridPane grid;
-    @FXML
-    public ImageView wheel;
-    @FXML
-    public Circle ball;
     @FXML
     public Text balanceText;
     @FXML
@@ -89,8 +79,7 @@ public class GameController implements ClientGame {
     public ImageView floatingChip = new ImageView();
     public Group chipsOnBoard = new Group();
     public HashMap<Bet, ImageView> betToChip = new HashMap<>();
-    private static TopicListener topicListener;
-    private static TopicReceiverGateway topicReceiverGateway;
+    private static ClientGateway clientGateway;
 
     public GameController(Client client) {
         super();
@@ -99,14 +88,15 @@ public class GameController implements ClientGame {
         specialDescriptions = new HashMap<>();
         coordToNumber = new HashMap<>();
         numberToCoordinate = new Coordinate[37];
+//        TopicListener topicListener = new TopicListener("RouletteResults");
+//        TopicReceiverGateway topicReceiverGateway = new TopicReceiverGateway("RouletteResults", this.client.player.getUsername());
+        clientGateway = new ClientGateway(this);
     }
 
     /* Called after scene graph loads */
     @SuppressWarnings("unused")
     public void initialize() {
-        topicListener = new TopicListener("RouletteResults");
-        topicReceiverGateway = new TopicReceiverGateway("RouletteResults", this.client.player.getUsername());
-        // library.Bet table
+        //Setup the betTable and the NumberTable
         betTable.setPlaceholder(new Label("No Bets Placed"));
         betTable.setItems(bets);
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
@@ -314,16 +304,11 @@ public class GameController implements ClientGame {
         blueChip.setOnMouseClicked(chipClick);
         greenChip.setOnMouseClicked(chipClick);
         blackChip.setOnMouseClicked(chipClick);
-
         try {
-            balanceText.setText(String.format("\u20AC %.2f", client.player.getBalance()));
+            refreshBalanceText();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        ball.setCenterX(-45);
-        ball.setCenterY(13);
-
     }
 
     public Node getPaneFromCoordinate(int row, int col) {
@@ -334,59 +319,24 @@ public class GameController implements ClientGame {
         return null;
     }
 
-    //TODO: MOVE this to server and result to topic
-    @FXML
-    void handleSpinAction(ActionEvent e) {
-        wheel.setRotate(0);
-
-        Path path = new Path();
-        path.getElements().add(new MoveTo(0, 0));
-
-		/* The wheel is a 16 slice pizza */
-        double radius = 110;
-        double[] xs = new double[]{-45, -75, -101, -110, -102, -69, -47, 0, 43, 76, 105, 115, 108, 80, 50, 0};
-        double[] ys = new double[]{13, 35, 70, 105, 155, 201, 215, 228, 222, 202, 160, 115, 80, 33, 12, 0};
-
-		/* Choose a random slice for ball to finish on */
-        int ballPos = (int) (Math.random() * 16);
-        int spins = 12;
-        long ticks = (16 * spins) + ballPos;
-
-        for (int i = 0; i < ticks; i++) {
-            double x = xs[i % xs.length];
-            double y = ys[i % ys.length];
-            path.getElements().add(new ArcTo(radius, radius, 0, x, y, false, false));
-        }
-
-        long durationMillis = 12 * 1000;
-        PathTransition spin = new PathTransition(Duration.millis(durationMillis), path, ball);
-        spin.setInterpolator(Interpolator.LINEAR);
-        spin.play();
-
-		/* The wheel is a 37 slice pizza.  Choose random slice */
-        int wheelPos = (int) (Math.random() * 37);
-        int wheelSpins = 3;
-        double deg = (360.0 * wheelSpins) + ((360.0 / 37.0) * wheelPos);
-        RotateTransition rt = new RotateTransition(Duration.millis(durationMillis), wheel);
-        rt.setInterpolator(Interpolator.EASE_BOTH);
-        rt.setByAngle(deg);
-        rt.play();
-
-        int[] order = new int[]{0, 26, 3, 35, 12, 28, 7, 29, 18, 22, 9, 31, 14, 20, 1, 33, 16, 24, 5, 10, 23, 8, 30, 11, 36, 13, 27, 6, 34, 17, 25, 2, 21, 4, 19, 15, 32};
-        int[] ballPosToOffset = new int[]{-1, 1, 3, 5, 7, 10, 13, 14, 17, 19, 21, 24, 26, 28, 31, 33, 35};
-        int result = order[(wheelPos + ballPosToOffset[ballPos]) % 37];
-        System.out.println("Result: " + result);
-
-        rt.setOnFinished(new SpinFinishedListener(this, result));
-    }
-
     public void addBet(Bet b) {
         bets.add(b);
+        changeChipsAction();
     }
 
+    /**
+     * Removes the Bet from the bets list.
+     * Removes chips from the GUI.
+     * Updates player balance.
+     *
+     * @param bet Bet
+     */
     private void deleteBet(Bet bet) {
         bets.remove(bet);
         chipsOnBoard.getChildren().remove(betToChip.get(bet));
+        client.player.setBalance(client.player.getBalance() + bet.getAmount());
+        refreshBalanceText();
+        changeChipsAction();
     }
 
     public String coordinateToDescription(Coordinate coordinate) {
@@ -403,17 +353,67 @@ public class GameController implements ClientGame {
     }
 
     @FXML
-    public void handleBetAction() {
+    public void handleBetButtonAction() {
+        System.out.print("button click");
         for (Bet bet : this.bets) {
-            if (bet.getPlayer().getId().equals(client.player.getId())) {
-                //TODO:: Send bet to server through JMS
-            }
+            clientGateway.sendBet(bet);
         }
-
     }
 
-    @Override
-    public void spin(int result) {
+    /**
+     * Refreshes the balance textbox to the current balance of the player.
+     */
+    public void refreshBalanceText() {
+        balanceText.setText(String.format("\u20AC %.2f", client.player.getBalance()));
+    }
 
+    /**
+     * Check all bets if the bet's number(s) are correct
+     * Updates Player's balance.
+     * Removes chips from the GUI.
+     *
+     * @param result Result
+     */
+    public void handleBet(Result result) {
+        System.err.print("handleBet:" + result);
+        for (Bet bet : this.bets) {
+            if (bet.cameTrue(result.getNumber())) {
+                this.client.player.setBalance(this.client.player.getBalance() + (bet.getAmount() * bet.getPayout()));
+            } else {
+                Platform.runLater(() -> this.chipsOnBoard.getChildren().remove(this.betToChip.get(bet)));
+            }
+            bets.remove(bet);
+        }
+        this.refreshBalanceText();
+    }
+
+    private void changeChipsAction() {
+        System.err.print("\n PlayerBalance: " + this.client.player.getBalance() + "\n ChipValue: " + chipAmounts[4]);
+        if (this.client.player.getBalance() < chipAmounts[0]) {
+            whiteChip.setDisable(true);
+        } else {
+            whiteChip.setDisable(false);
+        }
+        if (this.client.player.getBalance() < chipAmounts[1]) {
+            redChip.setDisable(true);
+        } else {
+            redChip.setDisable(false);
+        }
+        if (this.client.player.getBalance() < chipAmounts[2]) {
+            blueChip.setDisable(true);
+        } else {
+            blueChip.setDisable(false);
+        }
+        if (this.client.player.getBalance() < chipAmounts[3]) {
+            greenChip.setDisable(true);
+        } else {
+            greenChip.setDisable(false);
+        }
+        if (this.client.player.getBalance() < chipAmounts[4]) {
+            System.out.print("ONDER 100");
+            blackChip.setDisable(true);
+        } else {
+            blackChip.setDisable(false);
+        }
     }
 }

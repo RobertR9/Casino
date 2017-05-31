@@ -1,31 +1,31 @@
 package library;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Result implements Serializable {
 
     private Integer number;
     private String color;
+    private Set<Integer> redNumbers = new HashSet<>(Arrays.asList(2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35));
 
-    public Result(Integer number, String color) {
+    public Result(Integer number) {
         this.number = number;
-        this.color = color;
+        setColor();
     }
 
     public Integer getNumber() {
         return number;
     }
 
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
     public String getColor() {
         return color;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setColor() {
+        this.color = redNumbers.contains(this.number) ? "Red" : "Black";
     }
 
     @Override

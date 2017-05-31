@@ -1,26 +1,19 @@
 package library;
 
+import java.io.Serializable;
 import java.util.Set;
 
-
-public class Bet {
-
-    private static final long serialVersionUID = 1L;
-
+public class Bet implements Serializable {
     private Player player;
-
     private int payout;
-
     private Double amount;
-
-    private Set<Integer> winning;
-
+    private Set<Integer> numbers;
     private String description;
 
-    public Bet(Double amount, int payout, Set<Integer> winning, String description, Player player) {
+    public Bet(Double amount, int payout, Set<Integer> numbers, String description, Player player) {
         this.payout = payout;
         this.amount = amount;
-        this.winning = winning;
+        this.numbers = numbers;
         this.description = description;
         this.player = player;
     }
@@ -34,7 +27,7 @@ public class Bet {
     }
 
     public boolean cameTrue(int resultOfSpin) {
-        return winning.contains(resultOfSpin);
+        return numbers.contains(resultOfSpin);
     }
 
     public String getDescription() {
@@ -43,6 +36,17 @@ public class Bet {
 
     public Player getPlayer() {
         return this.player;
+    }
+
+    @Override
+    public String toString() {
+        return "Bet{" +
+                "player=" + player +
+                ", payout=" + payout +
+                ", amount=" + amount +
+                ", numbers=" + numbers +
+                ", description='" + description + '\'' +
+                '}';
     }
 }
 

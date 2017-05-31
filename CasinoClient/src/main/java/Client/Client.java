@@ -5,9 +5,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import jms.ClientGateway;
 import library.LoginServer;
 import library.Player;
-import library.ServerGame;
 import login.LoginController;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class Client extends Application {
     public Stage stage;
     public LoginServer loginServer;
     public Player player;
-    public ServerGame serverGame;
+    private static ClientGateway clientGateway;
 
     public void start(Stage stage) {
         this.stage = stage;
@@ -27,12 +27,12 @@ public class Client extends Application {
         stage.setTitle("Roulette");
         setLoginScene();
         stage.show();
+//        clientGateway = new ClientGateway();
     }
 
     private void setLoginScene() {
         FXMLLoader loginFxml = new FXMLLoader();
         loginFxml.setLocation(getClass().getResource("/Login.fxml"));
-        System.err.print("LOGINFXML=" + loginFxml.toString());
         loginFxml.setController(new LoginController(this));
         Scene loginScene;
         try {
@@ -44,6 +44,7 @@ public class Client extends Application {
         stage.setScene(loginScene);
     }
 
+    @Deprecated
     public void setLobbyScene() {
 
         FXMLLoader lobbyFxml = new FXMLLoader(getClass().getResource("/Lobby.fxml"));

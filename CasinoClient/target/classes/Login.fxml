@@ -6,7 +6,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<GridPane alignment="center" hgap="10" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: green;"
+<GridPane alignment="center" hgap="10" prefHeight="400.0" prefWidth="600.0" style="-fx-background-image: url('images/felt.jpg');-fx-background-color: green;"
           vgap="10"
           xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
     <padding>

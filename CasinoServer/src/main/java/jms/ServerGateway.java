@@ -2,13 +2,13 @@ package jms;
 
 import gateway.GateWay;
 import library.Player;
+import library.Result;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ServerGateway extends GateWay {
@@ -24,19 +24,28 @@ public class ServerGateway extends GateWay {
         if (message instanceof ObjectMessage) {
             try {
                 ObjectMessage objectMessage = (ObjectMessage) message;
-                if (message.getJMSType().equals("login")) {
-                    System.err.print("ObjectMessage: " + objectMessage.getObject());
-                } else {
-                    throw new RuntimeException("Wrong type Message");
+                switch (message.getJMSType()) {
+                    case "login":
+                        System.err.print("\n ObjectMessage: " + objectMessage + "\n");
+                        break;
+                    default:
+                        throw new RuntimeException("Wrong message type");
                 }
             } catch (JMSException e) {
-                Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage());
+                Logger.getLogger("ServerGateway").severe(e.getMessage());
             }
         }
     }
 
     public void handleReply(Player player) {
         ObjectMessage objectMessage = this.getSender().createObjectMessage(player);
+        this.getSender().send(objectMessage);
+    }
+
+    public void handleWinningNumberReply(Result result) {
+        System.out.print("\n" + "handleWinningNumberReply" + "\n");
+
+        ObjectMessage objectMessage = this.getSender().createObjectMessage(result);
         this.getSender().send(objectMessage);
     }
 

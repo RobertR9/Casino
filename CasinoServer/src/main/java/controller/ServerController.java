@@ -22,6 +22,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import jms.ServerGateway;
 import jms.TopicSenderGateway;
 import library.Bet;
 import library.Result;
@@ -79,6 +80,7 @@ public class ServerController {
     private ObservableList<Bet> bets = FXCollections.observableArrayList();
     private ObservableList<Result> results = FXCollections.observableArrayList();
     private TopicSenderGateway topicSenderGateway = new TopicSenderGateway("RouletteResults");
+    private static ServerGateway serverGateway = new ServerGateway();
 
     public ServerController(Server Server) {
         this.server = server;
@@ -141,10 +143,10 @@ public class ServerController {
         int[] order = new int[]{0, 26, 3, 35, 12, 28, 7, 29, 18, 22, 9, 31, 14, 20, 1, 33, 16, 24, 5, 10, 23, 8, 30, 11, 36, 13, 27, 6, 34, 17, 25, 2, 21, 4, 19, 15, 32};
         int[] ballPosToOffset = new int[]{-1, 1, 3, 5, 7, 10, 13, 14, 17, 19, 21, 24, 26, 28, 31, 33, 35};
         int winningNr = order[(wheelPos + ballPosToOffset[ballPos]) % 37];
-        Result result = new Result(winningNr, "groen");
+        Result result = new Result(winningNr);
         rt.setOnFinished(new SpinFinishedListener(this, winningNr));
-        System.out.println("Result: " + winningNr);
         topicSenderGateway.createObjectMessage(result);
+        serverGateway.handleWinningNumberReply(result);
     }
 
     public void addBet(Bet b) {
@@ -155,15 +157,5 @@ public class ServerController {
         results.add(result);
         System.err.print(resultTable.getItems());
         resultTable.refresh();
-    }
-
-    @FXML
-    public void handleBetAction() {
-//        for (Bet bet : this.bets) {
-//            if (bet.getPlayer().getId().equals(client.player.getId())) {
-//                //TODO:: Send bet to server through JMS
-//            }
-//        }
-
     }
 }
