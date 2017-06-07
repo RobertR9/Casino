@@ -5,8 +5,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import jms.ClientGateway;
-import library.LoginServer;
 import library.Player;
 import login.LoginController;
 
@@ -15,9 +13,7 @@ import java.io.IOException;
 
 public class Client extends Application {
     public Stage stage;
-    public LoginServer loginServer;
     public Player player;
-    private static ClientGateway clientGateway;
 
     public void start(Stage stage) {
         this.stage = stage;
@@ -27,7 +23,6 @@ public class Client extends Application {
         stage.setTitle("Roulette");
         setLoginScene();
         stage.show();
-//        clientGateway = new ClientGateway();
     }
 
     private void setLoginScene() {

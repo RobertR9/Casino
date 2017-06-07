@@ -18,7 +18,7 @@ public class MessageReceiverGateway {
                 throw new IllegalArgumentException("Channel name is null.");
             }
             ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-            connectionFactory.setTrustedPackages(Arrays.asList("java.lang","library"));
+            connectionFactory.setTrustedPackages(Arrays.asList("java.lang","java.util","library"));
 
             this.connection = connectionFactory.createConnection();
             this.connection.start();

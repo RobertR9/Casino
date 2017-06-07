@@ -1,8 +1,11 @@
-package jms;
+package messaging;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class TopicReceiverGateway {
@@ -23,8 +26,10 @@ public class TopicReceiverGateway {
 
             Context jndiContext = new InitialContext(props);
 
-            TopicConnectionFactory connectionFactory = (TopicConnectionFactory) jndiContext.lookup("ConnectionFactory");
+            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+            connectionFactory.setTrustedPackages(Arrays.asList("java.util", "java.lang", "library"));
             TopicConnection connection = connectionFactory.createTopicConnection();
+
             connection.setClientID(clientID);
 
             TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);

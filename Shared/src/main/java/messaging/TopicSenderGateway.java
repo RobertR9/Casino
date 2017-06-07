@@ -1,7 +1,7 @@
-package jms;
+package messaging;
 
-import library.Player;
 import library.Result;
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -26,7 +26,8 @@ public class TopicSenderGateway {
             props.put(("topic." + channelName), channelName);
 
             Context jndiContext = new InitialContext(props);
-            TopicConnectionFactory connectionFactory = (TopicConnectionFactory) jndiContext.lookup("ConnectionFactory");
+            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+
             TopicConnection connection = connectionFactory.createTopicConnection();
 
             session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -54,22 +55,6 @@ public class TopicSenderGateway {
             e.printStackTrace();
         }
         return objectMessage;
-    }
-
-    public ObjectMessage createObjectMessage(Player player) {
-        ObjectMessage message = null;
-        try {
-            message = session.createObjectMessage();
-            message.setObject(player);
-
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-        return message;
-    }
-
-    public Message createTextMessage(String body) throws JMSException {
-        return session.createTextMessage(body);
     }
 
     public void send(Message msg) throws JMSException {

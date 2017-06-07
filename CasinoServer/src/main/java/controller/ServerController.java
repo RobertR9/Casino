@@ -23,7 +23,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import jms.ServerGateway;
-import jms.TopicSenderGateway;
+import messaging.TopicSenderGateway;
 import library.Bet;
 import library.Result;
 import listeners.SpinFinishedListener;
@@ -79,8 +79,8 @@ public class ServerController {
     private Server server;
     private ObservableList<Bet> bets = FXCollections.observableArrayList();
     private ObservableList<Result> results = FXCollections.observableArrayList();
-    private TopicSenderGateway topicSenderGateway = new TopicSenderGateway("RouletteResults");
-    private static ServerGateway serverGateway = new ServerGateway();
+    public TopicSenderGateway topicSenderGateway = new TopicSenderGateway("RouletteResults");
+    public static ServerGateway serverGateway = new ServerGateway();
 
     public ServerController(Server Server) {
         this.server = server;
@@ -135,18 +135,16 @@ public class ServerController {
         int wheelPos = (int) (Math.random() * 37);
         int wheelSpins = 3;
         double deg = (360.0 * wheelSpins) + ((360.0 / 37.0) * wheelPos);
-        RotateTransition rt = new RotateTransition(Duration.millis(durationMillis), wheel);
-        rt.setInterpolator(Interpolator.EASE_BOTH);
-        rt.setByAngle(deg);
-        rt.play();
+        RotateTransition rotateTransition = new RotateTransition(Duration.millis(durationMillis), wheel);
+        rotateTransition.setInterpolator(Interpolator.EASE_BOTH);
+        rotateTransition.setByAngle(deg);
+        rotateTransition.play();
 
         int[] order = new int[]{0, 26, 3, 35, 12, 28, 7, 29, 18, 22, 9, 31, 14, 20, 1, 33, 16, 24, 5, 10, 23, 8, 30, 11, 36, 13, 27, 6, 34, 17, 25, 2, 21, 4, 19, 15, 32};
         int[] ballPosToOffset = new int[]{-1, 1, 3, 5, 7, 10, 13, 14, 17, 19, 21, 24, 26, 28, 31, 33, 35};
         int winningNr = order[(wheelPos + ballPosToOffset[ballPos]) % 37];
         Result result = new Result(winningNr);
-        rt.setOnFinished(new SpinFinishedListener(this, winningNr));
-        topicSenderGateway.createObjectMessage(result);
-        serverGateway.handleWinningNumberReply(result);
+        rotateTransition.setOnFinished(new SpinFinishedListener(this, winningNr));
     }
 
     public void addBet(Bet b) {
@@ -155,7 +153,6 @@ public class ServerController {
 
     public void addResult(Result result) {
         results.add(result);
-        System.err.print(resultTable.getItems());
         resultTable.refresh();
     }
 }

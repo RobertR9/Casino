@@ -9,7 +9,6 @@ import jms.ServerGateway;
 import models.ServerGameImpl;
 
 public class Server extends Application {
-    private static ServerGateway serverGateway;
     private static ServerGameImpl serverGame;
     private Stage stage;
 
@@ -30,8 +29,7 @@ public class Server extends Application {
         serverGame = new ServerGameImpl("Roulette");
         System.err.print("Starting server with game: " + serverGame.getName());
         try {
-//            TopicSenderGateway topicSenderGateway = new TopicSenderGateway("CasinoLobby");
-            serverGateway = new ServerGateway();
+            new ServerGateway();
         } catch (Exception e) {
             System.err.println("Exception binding RouletteServer:");
             e.printStackTrace();

@@ -5,18 +5,30 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import library.Result;
 
+import javax.jms.JMSException;
+import javax.jms.ObjectMessage;
+
 public class SpinFinishedListener implements EventHandler<ActionEvent> {
-    private int result;
+    private int winningNr;
     private ServerController serverController;
 
-    public SpinFinishedListener(ServerController serverController, int result) {
+    public SpinFinishedListener(ServerController serverController, int winningNr) {
         this.serverController = serverController;
-        this.result = result;
+        this.winningNr = winningNr;
     }
 
     @Override
     public void handle(ActionEvent event) {
-        serverController.addResult(new Result(result));
+        Result result = new Result(winningNr);
+        serverController.addResult(result);
+        ObjectMessage objectMessage = serverController.topicSenderGateway.createObjectMessage(result);
+        try {
+            serverController.topicSenderGateway.send(objectMessage);
+        } catch (JMSException e) {
+            System.err.print(e.getMessage());
+        }
+
+        ServerController.serverGateway.handleWinningNumberReply(result);
     }
 
 }

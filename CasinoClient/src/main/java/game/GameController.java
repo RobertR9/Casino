@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -25,12 +26,15 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import jms.ClientGateway;
+import jms.ClientTopicListener;
+import jms.RouletteResultsTopicGateway;
 import library.Bet;
 import library.Result;
 
+import java.net.URL;
 import java.util.*;
 
-public class GameController {
+public class GameController implements Initializable {
 
     @FXML
     public AnchorPane boardPane;
@@ -66,20 +70,29 @@ public class GameController {
     public TableColumn<Bet, String> descriptionColumn;
     @FXML
     public TableColumn<Bet, Button> deleteColumn;
+    @FXML
+    public TableView<Result> resultTable;
+    @FXML
+    public TableColumn<Result, Integer> numberColumn;
+    @FXML
+    public TableColumn<Result, String> colorColumn;
 
     public Client client;
     private Coordinate[] numberToCoordinate;
     public HashMap<Coordinate, Integer> coordToNumber;
     public HashMap<Coordinate, Coordinate[]> coordToSelection;
     private HashMap<Coordinate, String> specialDescriptions;
-    private ObservableList<Bet> bets = FXCollections.observableArrayList();
     public Double[] chipAmounts = new Double[]{5d, 10d, 20d, 50d, 100d};
     public int currChip = -1;
     public ImageView[] chips;
     public ImageView floatingChip = new ImageView();
     public Group chipsOnBoard = new Group();
     public HashMap<Bet, ImageView> betToChip = new HashMap<>();
+    private ObservableList<Bet> bets = FXCollections.observableArrayList();
+    private ObservableList<Result> results = FXCollections.observableArrayList();
     private static ClientGateway clientGateway;
+    private static ClientTopicListener clientTopicListener;
+    private static RouletteResultsTopicGateway rouletteResultsTopicGateway;
 
     public GameController(Client client) {
         super();
@@ -88,15 +101,21 @@ public class GameController {
         specialDescriptions = new HashMap<>();
         coordToNumber = new HashMap<>();
         numberToCoordinate = new Coordinate[37];
-//        TopicListener topicListener = new TopicListener("RouletteResults");
-//        TopicReceiverGateway topicReceiverGateway = new TopicReceiverGateway("RouletteResults", this.client.player.getUsername());
         clientGateway = new ClientGateway(this);
     }
 
     /* Called after scene graph loads */
-    @SuppressWarnings("unused")
-    public void initialize() {
-        //Setup the betTable and the NumberTable
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        //Setup topic listeners
+        try {
+            rouletteResultsTopicGateway = new RouletteResultsTopicGateway(this, this.client.player.getUsername());
+            clientTopicListener = new ClientTopicListener("RouletteResults", this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Setup the betTable
         betTable.setPlaceholder(new Label("No Bets Placed"));
         betTable.setItems(bets);
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
@@ -107,12 +126,19 @@ public class GameController {
             return new ReadOnlyObjectWrapper<>(button);
         });
 
+        //Setup the Result table
+        resultTable.setPlaceholder(new Label("No Results yet."));
+        resultTable.setItems(results);
+        numberColumn.setCellValueFactory(new PropertyValueFactory<>("number"));
+        colorColumn.setCellValueFactory(new PropertyValueFactory<>("color"));
+
         floatingChip.setMouseTransparent(true);
         floatingChip.setFitHeight(40);
         floatingChip.setFitWidth(40);
         boardPane.getChildren().add(chipsOnBoard);
         boardPane.getChildren().add(floatingChip);
 
+        //Roulette board init
         grid.setOnMouseEntered(arg0 -> {
             if (currChip != -1) {
                 floatingChip.setVisible(true);
@@ -375,7 +401,7 @@ public class GameController {
      * @param result Result
      */
     public void handleBet(Result result) {
-        System.err.print("handleBet:" + result);
+        System.err.print("\n handleBetMethod:" + result + "\n");
         for (Bet bet : this.bets) {
             if (bet.cameTrue(result.getNumber())) {
                 this.client.player.setBalance(this.client.player.getBalance() + (bet.getAmount() * bet.getPayout()));
@@ -410,10 +436,13 @@ public class GameController {
             greenChip.setDisable(false);
         }
         if (this.client.player.getBalance() < chipAmounts[4]) {
-            System.out.print("ONDER 100");
             blackChip.setDisable(true);
         } else {
             blackChip.setDisable(false);
         }
+    }
+
+    public void addResult(Result result) {
+        results.add(result);
     }
 }
