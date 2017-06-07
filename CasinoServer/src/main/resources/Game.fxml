@@ -32,7 +32,7 @@
                                     <children>
                                         <TableView fx:id="resultTable" prefHeight="371.0" prefWidth="200.0">
                                             <columns>
-                                                <TableColumn fx:id="numberColumn" prefWidth="122.0" text="Number" />
+                                                <TableColumn fx:id="numberColumn" editable="false" prefWidth="122.0" sortable="false" text="Number" />
                                                 <TableColumn fx:id="colorColumn" prefWidth="77.0" text="Color" />
                                             </columns>
                                         </TableView>

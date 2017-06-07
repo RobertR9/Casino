@@ -53,7 +53,6 @@ public class ClientTopicListener implements MessageListener {
                 if (aMsg.getDataStructure() instanceof ConsumerInfo) {
                     ConsumerInfo consumerInfo = (ConsumerInfo) aMsg.getDataStructure();
                     users.put(consumerInfo.getClientId(), consumerInfo.getConsumerId().toString());
-                    System.err.print("\n hanker: " + consumerInfo.getClientId() + "\n");
                 }
             } catch (Exception ignored) {
                 System.err.print(ignored.getMessage());

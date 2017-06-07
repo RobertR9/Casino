@@ -69,6 +69,8 @@ public class GameController implements Initializable {
     @FXML
     public TableColumn<Bet, String> descriptionColumn;
     @FXML
+    public TableColumn<Bet, String> statusColumn;
+    @FXML
     public TableColumn<Bet, Button> deleteColumn;
     @FXML
     public TableView<Result> resultTable;
@@ -120,6 +122,7 @@ public class GameController implements Initializable {
         betTable.setItems(bets);
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         deleteColumn.setCellValueFactory(p -> {
             Button button = new Button("Delete");
             button.setOnMouseClicked(arg0 -> deleteBet(p.getValue()));
@@ -380,8 +383,11 @@ public class GameController implements Initializable {
 
     @FXML
     public void handleBetButtonAction() {
-        for (Bet bet : this.bets) {
+        Bet bet = betTable.getSelectionModel().getSelectedItem();
+        if (null != bet && bet.getStatus().equals("pending")) {
+            bet.setStatus("placed");
             clientGateway.sendBet(bet);
+            betTable.refresh();
         }
     }
 
@@ -400,20 +406,29 @@ public class GameController implements Initializable {
      * @param result Result
      */
     public void handleBet(Result result) {
-        System.err.print("\n handleBetMethod:" + result + "\n");
-        for (Bet bet : this.bets) {
-            if (bet.cameTrue(result.getNumber())) {
-                this.client.player.setBalance(this.client.player.getBalance() + (bet.getAmount() * bet.getPayout()));
-            } else {
+
+        Iterator<Bet> iterator = this.bets.iterator();
+
+        while (iterator.hasNext()) {
+            Bet bet = iterator.next();
+
+            if (bet.getStatus().equals("placed")) {
+                if (bet.cameTrue(result.getNumber())) {
+                    this.client.player.setBalance(this.client.player.getBalance() + (bet.getAmount() + (bet.getAmount() * bet.getPayout())));
+                } else {
+                    //myabe only removing losing bets
+                }
                 Platform.runLater(() -> this.chipsOnBoard.getChildren().remove(this.betToChip.get(bet)));
+                iterator.remove();
             }
-            bets.remove(bet);
         }
+//        for (Bet bet : this.bets) {
+//
+//        }
         this.refreshBalanceText();
     }
 
     private void changeChipsAction() {
-        System.err.print("\n PlayerBalance: " + this.client.player.getBalance() + "\n ChipValue: " + chipAmounts[4]);
         if (this.client.player.getBalance() < chipAmounts[0]) {
             whiteChip.setDisable(true);
         } else {

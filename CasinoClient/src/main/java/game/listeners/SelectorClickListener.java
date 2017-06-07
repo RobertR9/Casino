@@ -80,7 +80,6 @@ public class SelectorClickListener implements EventHandler<MouseEvent> {
         Bet bet;
         try {
             bet = gameCtrl.client.player.makeBet(betAmount, payout, winningNumbers, gameCtrl.coordinateToDescription(coordinate));
-            System.err.print("\n Bet: " + bet + " \n");
         } catch (Exception e) {
             e.getMessage();
             e.printStackTrace();

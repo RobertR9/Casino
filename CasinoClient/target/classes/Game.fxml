@@ -18,7 +18,7 @@
                                     <children>
                                         <TableView fx:id="resultTable" prefHeight="371.0" prefWidth="200.0">
                                             <columns>
-                                                <TableColumn fx:id="numberColumn" prefWidth="122.0" text="Number" />
+                                                <TableColumn fx:id="numberColumn" editable="false" prefWidth="122.0" sortable="false" text="Number" />
                                                 <TableColumn fx:id="colorColumn" prefWidth="77.0" text="Color" />
                                             </columns>
                                         </TableView>
@@ -690,7 +690,7 @@
                                 </AnchorPane>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="351.0" prefWidth="797.0" style="-fx-background-color: rgba(0, 0, 0, 0);">
                                     <children>
-                                        <HBox layoutX="476.0" layoutY="10.0" prefHeight="71.0" prefWidth="296.0">
+                                        <HBox layoutX="501.0" layoutY="10.0" prefHeight="36.0" prefWidth="243.0">
                                             <children>
                                                 <ImageView fx:id="whiteChip" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>
@@ -731,8 +731,9 @@
                                         <TableView fx:id="betTable" layoutX="14.0" layoutY="10.0" prefHeight="279.0" prefWidth="448.0">
                                             <columns>
                                                 <TableColumn fx:id="amountColumn" prefWidth="100.0" text="Amount" />
-                                                <TableColumn fx:id="descriptionColumn" prefWidth="252.0" text="library.Bet" />
-                                                <TableColumn fx:id="deleteColumn" minWidth="0.0" prefWidth="56.0" />
+                                                <TableColumn fx:id="descriptionColumn" prefWidth="229.0" text="Bet" />
+                                    <TableColumn fx:id="statusColumn" prefWidth="75.0" text="Status" />
+                                                <TableColumn fx:id="deleteColumn" minWidth="0.0" prefWidth="79.0" />
                                             </columns>
                                         </TableView>
                                     </children>

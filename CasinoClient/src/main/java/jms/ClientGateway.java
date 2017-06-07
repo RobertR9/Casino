@@ -19,15 +19,10 @@ public class ClientGateway extends GateWay {
 
     @Override
     protected void processObjectMessage(Message message) {
-        System.out.print("\n processObjectMessage: " + message + "\n");
-
         if (message instanceof ObjectMessage) {
             try {
                 ObjectMessage objectMessage = (ObjectMessage) message;
                 switch (objectMessage.getJMSType()) {
-                    case "login":
-                        System.err.print(message);
-                        break;
                     case "BetResult":
                         System.out.print("\n Betresult: " + objectMessage.getObject());
                         gameController.handleBet((Result) objectMessage.getObject());

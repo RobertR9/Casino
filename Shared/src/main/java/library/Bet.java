@@ -9,6 +9,7 @@ public class Bet implements Serializable {
     private Double amount;
     private Set<Integer> numbers;
     private String description;
+    private String status;
 
     public Bet(Double amount, int payout, Set<Integer> numbers, String description, Player player) {
         this.payout = payout;
@@ -16,6 +17,7 @@ public class Bet implements Serializable {
         this.numbers = numbers;
         this.description = description;
         this.player = player;
+        this.status = "pending";
     }
 
     public int getPayout() {
@@ -38,6 +40,14 @@ public class Bet implements Serializable {
         return this.player;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Bet{" +
@@ -46,6 +56,7 @@ public class Bet implements Serializable {
                 ", amount=" + amount +
                 ", numbers=" + numbers +
                 ", description='" + description + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }
