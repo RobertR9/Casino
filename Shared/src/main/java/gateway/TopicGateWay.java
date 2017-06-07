@@ -18,13 +18,7 @@ public abstract class TopicGateWay {
         try {
             receiver.setListener(message -> {
                 if (message instanceof ObjectMessage) {
-                    ObjectMessage objectMessage = (ObjectMessage) message;
-                    try {
-                        System.out.println("incoming object: " + objectMessage.getObject());
-                        processObjectMessage(message);
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
+                    processObjectMessage(message);
                 }
             });
         } catch (JMSException e) {
