@@ -380,7 +380,6 @@ public class GameController implements Initializable {
 
     @FXML
     public void handleBetButtonAction() {
-        System.out.print("button click");
         for (Bet bet : this.bets) {
             clientGateway.sendBet(bet);
         }

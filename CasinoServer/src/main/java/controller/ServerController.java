@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -23,10 +22,11 @@ import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import jms.ServerGateway;
-import messaging.TopicSenderGateway;
 import library.Bet;
+import library.Player;
 import library.Result;
 import listeners.SpinFinishedListener;
+import messaging.TopicSenderGateway;
 import server.Server;
 
 public class ServerController {
@@ -68,7 +68,7 @@ public class ServerController {
     @FXML
     public TableColumn<Bet, String> descriptionColumn;
     @FXML
-    public TableColumn<Bet, Button> deleteColumn;
+    public TableColumn<Bet, Player> playerColumn;
     @FXML
     public TableView<Result> resultTable;
     @FXML
@@ -79,11 +79,12 @@ public class ServerController {
     private Server server;
     private ObservableList<Bet> bets = FXCollections.observableArrayList();
     private ObservableList<Result> results = FXCollections.observableArrayList();
-    public TopicSenderGateway topicSenderGateway = new TopicSenderGateway("RouletteResults");
-    public static ServerGateway serverGateway = new ServerGateway();
+    public static TopicSenderGateway topicSenderGateway = new TopicSenderGateway("RouletteResults");
+    public static ServerGateway serverGateway;
 
-    public ServerController(Server Server) {
+    public ServerController(Server server) {
         this.server = server;
+        this.serverGateway = new ServerGateway(this);
     }
 
     /* Called after scene graph loads */
@@ -96,6 +97,7 @@ public class ServerController {
         resultTable.setItems(results);
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        playerColumn.setCellValueFactory(new PropertyValueFactory<>("player"));
         numberColumn.setCellValueFactory(new PropertyValueFactory<>("number"));
         colorColumn.setCellValueFactory(new PropertyValueFactory<>("color"));
 

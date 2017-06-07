@@ -1,6 +1,8 @@
 package jms;
 
+import controller.ServerController;
 import gateway.GateWay;
+import library.Bet;
 import library.Player;
 import library.Result;
 
@@ -13,9 +15,11 @@ import java.util.logging.Logger;
 
 public class ServerGateway extends GateWay {
     private static Map<Integer, Message> messages = new HashMap<>();
+    private ServerController serverController;
 
-    public ServerGateway() {
+    public ServerGateway(ServerController serverController) {
         super("ClientReceiveQueue", "ClientSendQueue");
+        this.serverController = serverController;
     }
 
     @Override
@@ -25,8 +29,9 @@ public class ServerGateway extends GateWay {
             try {
                 ObjectMessage objectMessage = (ObjectMessage) message;
                 switch (message.getJMSType()) {
-                    case "login":
-                        System.err.print("\n ObjectMessage: " + objectMessage + "\n");
+                    case "Bet":
+                        System.out.print("\nbet incoming\n");
+                        handleBetRequest((Bet) objectMessage.getObject());
                         break;
                     default:
                         throw new RuntimeException("Wrong message type");
@@ -47,6 +52,10 @@ public class ServerGateway extends GateWay {
 
         ObjectMessage objectMessage = this.getSender().createObjectMessage(result);
         this.getSender().send(objectMessage);
+    }
+
+    private void handleBetRequest(Bet bet) {
+        serverController.addBet(bet);
     }
 
 }

@@ -26,6 +26,9 @@ public abstract class GateWay {
                         case "BetResult":
                             this.processObjectMessage(message);
                             break;
+                        case "Bet":
+                            this.processObjectMessage(message);
+                            break;
                         default:
                     }
                 } catch (JMSException e) {

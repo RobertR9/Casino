@@ -46,6 +46,7 @@ public class MessageSenderGateway {
             this.producer.send(message);
             System.out.println(
                     "JMSMessageID=" + message.getJMSMessageID() + "\n" +
+                            "JMSType=" + message.getJMSType() + "\n" +
                             "JMSDestination=" + message.getJMSDestination() + "\n" +
                             "Object: " + (message).getObject() + "\n");
         } catch (JMSException e) {

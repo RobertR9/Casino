@@ -52,18 +52,12 @@ public class ClientTopicListener implements MessageListener {
             try {
                 if (aMsg.getDataStructure() instanceof ConsumerInfo) {
                     ConsumerInfo consumerInfo = (ConsumerInfo) aMsg.getDataStructure();
-                    System.err.print("\nClientTopicListener onMessage\n");
                     users.put(consumerInfo.getClientId(), consumerInfo.getConsumerId().toString());
                     System.err.print("\n hanker: " + consumerInfo.getClientId() + "\n");
-                } else if (aMsg.getDataStructure() instanceof ObjectMessage) {
-                    System.err.print("kanker onMessage");
-
                 }
             } catch (Exception ignored) {
                 System.err.print(ignored.getMessage());
             }
-        } else if (msg instanceof ObjectMessage) {
-            System.err.print("joehooe");
         }
     }
 }

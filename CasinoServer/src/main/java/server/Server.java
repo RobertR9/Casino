@@ -5,7 +5,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import jms.ServerGateway;
 import models.ServerGameImpl;
 
 public class Server extends Application {
@@ -28,12 +27,6 @@ public class Server extends Application {
     public static void main(String[] args) {
         serverGame = new ServerGameImpl("Roulette");
         System.err.print("Starting server with game: " + serverGame.getName());
-        try {
-            new ServerGateway();
-        } catch (Exception e) {
-            System.err.println("Exception binding RouletteServer:");
-            e.printStackTrace();
-        }
         launch(args);
     }
 
