@@ -130,7 +130,7 @@ public class ServerController {
         }
 
         //it was 12
-        long durationMillis = 2 * 1000;
+        long durationMillis = 12 * 1000;
         PathTransition spin = new PathTransition(Duration.millis(durationMillis), path, ball);
         spin.setInterpolator(Interpolator.LINEAR);
         spin.play();
