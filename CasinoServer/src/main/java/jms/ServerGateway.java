@@ -3,7 +3,6 @@ package jms;
 import controller.ServerController;
 import gateway.GateWay;
 import library.Bet;
-import library.Result;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -13,7 +12,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class ServerGateway extends GateWay {
-    private static Map<Integer, Message> messages = new HashMap<>();
+    private Map<Integer, Message> bets = new HashMap<>();
     private ServerController serverController;
 
     public ServerGateway(ServerController serverController) {
@@ -30,7 +29,7 @@ public class ServerGateway extends GateWay {
                 switch (message.getJMSType()) {
                     case "Bet":
                         System.out.print("\nbet incoming\n");
-                        handleBetRequest((Bet) objectMessage.getObject());
+                        handleBetRequest(objectMessage);
                         break;
                     default:
                         throw new RuntimeException("Wrong message type");
@@ -41,24 +40,25 @@ public class ServerGateway extends GateWay {
         }
     }
 
-    public void handleWinningNumberReply(Result result) {
-        System.out.print("\n" + "handleWinningNumberReply" + "\n");
-
-        ObjectMessage objectMessage = this.getSender().createObjectMessage(result);
-        this.getSender().send(objectMessage);
-    }
-
-    public void handleBetResultReply(Bet bet) {
-        System.out.print("\n" + "handleBetResultReply" + "\n");
-
-        ObjectMessage objectMessage = this.getSender().createObjectMessage(bet);
+    public void handleBetResultReply(Bet bet, ObjectMessage oldObjectMessage) throws JMSException {
+        ObjectMessage objectMessage = this.getSender().createObjectMessage(bet, oldObjectMessage);
         this.getSender().send(objectMessage);
         //removed bet from list
         serverController.removeBet(bet);
     }
 
-    private void handleBetRequest(Bet bet) {
-        serverController.addBet(bet);
+    private void handleBetRequest(ObjectMessage objectMessage) {
+        try {
+            Bet bet = (Bet) objectMessage.getObject();
+            int indexOf = serverController.addBet(bet);
+            bets.put(indexOf, objectMessage);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+
     }
 
+    public Map<Integer, Message> getBets() {
+        return bets;
+    }
 }

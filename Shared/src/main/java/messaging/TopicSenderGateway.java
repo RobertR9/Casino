@@ -45,7 +45,6 @@ public class TopicSenderGateway {
             objectMessage = session.createObjectMessage();
             objectMessage.setObject(result);
             objectMessage.setJMSType("Result");
-            producer.send(objectMessage);
             System.out.println(
                     "JMSMessageID=" + objectMessage.getJMSMessageID() + "\n" +
                             "JMStype=" + objectMessage.getJMSType() + "\n" +

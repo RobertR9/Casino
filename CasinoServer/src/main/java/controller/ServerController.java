@@ -151,11 +151,17 @@ public class ServerController {
         rotateTransition.setOnFinished(new SpinFinishedListener(this, winningNr));
     }
 
-    public void addBet(Bet b) {
+    public int addBet(Bet b) {
         bets.add(b);
+        return bets.indexOf(b);
     }
+
     public void removeBet(Bet b) {
         bets.remove(b);
+    }
+
+    public void removeAllBets() {
+        bets.clear();
     }
 
     public void addResult(Result result) {

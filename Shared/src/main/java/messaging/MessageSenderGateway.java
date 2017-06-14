@@ -40,42 +40,36 @@ public class MessageSenderGateway {
         }
     }
 
-    public void send(ObjectMessage message) {
-        try {
-            this.producer.send(message);
-            System.out.println(
-                    "JMSMessageID=" + message.getJMSMessageID() + "\n" +
-                            "JMSType=" + message.getJMSType() + "\n" +
-                            "JMSDestination=" + message.getJMSDestination() + "\n" +
-                            "Object: " + (message).getObject() + "\n");
-        } catch (JMSException e) {
-            System.err.print(e.getMessage());
-        }
+    public void send(ObjectMessage message) throws JMSException {
+        this.producer.send(message);
+        System.out.println(
+                "JMSMessageID=" + message.getJMSMessageID() + "\n" +
+                        "JMSMessageCorId=" + message.getJMSCorrelationID() + "\n" +
+                        "JMSType=" + message.getJMSType() + "\n" +
+                        "JMSDestination=" + message.getJMSDestination() + "\n" +
+                        "Object: " + (message).getObject() + "\n");
     }
 
-    public ObjectMessage createObjectMessage(Result result) {
-        ObjectMessage objectMessage = null;
-        try {
-            objectMessage = session.createObjectMessage();
-            objectMessage.setObject(result);
-            objectMessage.setJMSType("BetResult");
-            producer.send(objectMessage);
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
+    public ObjectMessage createObjectMessage(Result result) throws JMSException {
+        ObjectMessage objectMessage = session.createObjectMessage();
+        objectMessage.setObject(result);
+        objectMessage.setJMSType("BetResult");
         return objectMessage;
     }
 
-    public ObjectMessage createObjectMessage(Bet bet) {
-        ObjectMessage objectMessage = null;
-        try {
-            objectMessage = session.createObjectMessage();
-            objectMessage.setObject(bet);
-            objectMessage.setJMSType("Bet");
-            producer.send(objectMessage);
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
+    public ObjectMessage createObjectMessage(Bet bet) throws JMSException {
+        ObjectMessage objectMessage = session.createObjectMessage();
+        objectMessage.setJMSType("Bet");
+        objectMessage.setObject(bet);
+
+        return objectMessage;
+    }
+
+    public ObjectMessage createObjectMessage(Bet bet, ObjectMessage oldMessage) throws JMSException {
+        ObjectMessage objectMessage = session.createObjectMessage();
+        objectMessage.setJMSType("BetResult");
+        objectMessage.setObject(bet);
+        objectMessage.setJMSCorrelationID(oldMessage.getJMSMessageID());
         return objectMessage;
     }
 }

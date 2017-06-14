@@ -34,14 +34,20 @@ public class SpinFinishedListener implements EventHandler<ActionEvent> {
         while (iterator.hasNext()) {
             Bet bet = iterator.next();
             if (bet.cameTrue(winningNr)) {
-                bet.setStatus("Won");
+                bet.setStatus(Bet.WON);
             } else {
-                bet.setStatus("Lost");
+                bet.setStatus(Bet.LOST);
             }
-            ServerController.serverGateway.handleBetResultReply(bet);
-
+            ObjectMessage oldMessage = (ObjectMessage) ServerController.serverGateway.getBets().get(serverController.getBets().indexOf(bet));
+            try {
+                ServerController.serverGateway.handleBetResultReply(bet, oldMessage);
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+            iterator.remove();
+            ServerController.serverGateway.getBets().remove(serverController.getBets().indexOf(bet));
         }
-//        ServerController.serverGateway.handleWinningNumberReply(result);
+        serverController.removeAllBets();
     }
 
 }

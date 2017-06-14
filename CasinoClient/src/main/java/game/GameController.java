@@ -31,6 +31,7 @@ import jms.RouletteResultsTopicGateway;
 import library.Bet;
 import library.Result;
 
+import javax.jms.JMSException;
 import java.net.URL;
 import java.util.*;
 
@@ -382,7 +383,7 @@ public class GameController implements Initializable {
     }
 
     @FXML
-    public void handleBetButtonAction() {
+    public void handleBetButtonAction() throws JMSException {
         Bet bet = betTable.getSelectionModel().getSelectedItem();
         if (null != bet && bet.getStatus().equals("pending")) {
             bet.setStatus("placed");
@@ -405,25 +406,12 @@ public class GameController implements Initializable {
      *
      * @param bet Bet
      */
-    public void handleBet(Bet oldBet,Bet bet) {
-        Iterator<Bet> iterator = this.bets.iterator();
-        System.err.print("\n Iterator: " + iterator.next());
-        System.err.print("\n Bet: " + bet);
-
-        while (iterator.hasNext()) {
-            if (iterator.next().equals(bet)) {
-                if (bet.getStatus().equals(Bet.WON)) {
-//                if (bet.cameTrue(result.getNumber())) {
-                    this.client.player.setBalance(this.client.player.getBalance() + (bet.getAmount() + (bet.getAmount() * bet.getPayout())));
-//                } else {
-                    //myabe only removing losing bets
-//                }
-
-                }
-            }
-            Platform.runLater(() -> this.chipsOnBoard.getChildren().remove(this.betToChip.get(bet)));
-            iterator.remove();
+    public void handleBet(Bet bet, Bet oldBet) {
+        if (bet.getStatus().equals(Bet.WON)) {
+            this.client.player.setBalance(this.client.player.getBalance() + (bet.getAmount() + (bet.getAmount() * bet.getPayout())));
         }
+        Platform.runLater(() -> this.chipsOnBoard.getChildren().remove(this.betToChip.get(oldBet)));
+        bets.remove(oldBet);
 
         this.refreshBalanceText();
     }

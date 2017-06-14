@@ -26,7 +26,7 @@ public class Server extends Application {
 
     public static void main(String[] args) {
         serverGame = new ServerGame("Roulette");
-        System.err.print("Starting server with game: " + serverGame.getName());
+        System.err.print("Starting server with game: " + serverGame.getName() + "\n");
         launch(args);
     }
 

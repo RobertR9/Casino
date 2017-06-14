@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Result implements Serializable {
-
     private Integer number;
     private String color;
     private Set<Integer> redNumbers = new HashSet<>(Arrays.asList(2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35));
@@ -25,7 +24,7 @@ public class Result implements Serializable {
     }
 
     public void setColor() {
-        this.color = redNumbers.contains(this.number) ? "Red" : "Black";
+        this.color = this.number.equals(0) ? "Green" : (redNumbers.contains(this.number) ? "Red" : "Black");
     }
 
     @Override

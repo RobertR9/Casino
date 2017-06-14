@@ -6,7 +6,6 @@ import messaging.TopicSenderGateway;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
-import java.text.ParseException;
 
 public abstract class TopicGateWay {
     private TopicSenderGateway sender;
@@ -25,8 +24,6 @@ public abstract class TopicGateWay {
             e.printStackTrace();
         }
     }
-
-    protected abstract void processMessage(String message, String CorrelationId) throws JMSException, ParseException;
 
     protected abstract void processObjectMessage(Message message);
 

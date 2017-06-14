@@ -7,7 +7,6 @@ import library.Result;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
-import java.text.ParseException;
 
 public class RouletteResultsTopicGateway extends TopicGateWay {
     private GameController gameController;
@@ -15,12 +14,6 @@ public class RouletteResultsTopicGateway extends TopicGateWay {
     public RouletteResultsTopicGateway(GameController gameController, String clientID) {
         super("RouletteResults", "RouletteResults", clientID);
         this.gameController = gameController;
-    }
-
-    @Override
-    protected void processMessage(String message, String CorrelationId) throws JMSException, ParseException {
-        System.err.print("snor:" + message);
-
     }
 
     @Override

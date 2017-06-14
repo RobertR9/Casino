@@ -25,9 +25,8 @@ public class ClientGateway extends GateWay {
             try {
                 ObjectMessage objectMessage = (ObjectMessage) message;
                 switch (objectMessage.getJMSType()) {
-                    case "Bet":
-                        System.out.print("\n Bet: " + objectMessage.getObject());
-                        gameController.handleBet((Bet) objectMessage.getObject());
+                    case "BetResult":
+                        gameController.handleBet((Bet) objectMessage.getObject(), bets.get(objectMessage.getJMSCorrelationID()));
                         break;
                     default:
                         throw new RuntimeException("No Object Message");
@@ -38,9 +37,13 @@ public class ClientGateway extends GateWay {
         }
     }
 
-    //TODO:: Send Bet to server so server knows which bets are for this round
-    public void sendBet(Bet bet) {
-        ObjectMessage objectMessage = this.getSender().createObjectMessage(bet);
+    public void sendBet(Bet bet) throws JMSException {
+        ObjectMessage objectMessage = null;
+        try {
+            objectMessage = this.getSender().createObjectMessage(bet);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
         this.getSender().send(objectMessage);
         try {
             bets.put(objectMessage.getJMSMessageID(), bet);
