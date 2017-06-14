@@ -39,21 +39,6 @@ public class Client extends Application {
         stage.setScene(loginScene);
     }
 
-    @Deprecated
-    public void setLobbyScene() {
-
-        FXMLLoader lobbyFxml = new FXMLLoader(getClass().getResource("/Lobby.fxml"));
-        System.err.print("LOBBYFXML=" + lobbyFxml.toString());
-        Scene lobbyScene;
-        try {
-            lobbyScene = new Scene(lobbyFxml.load());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        stage.setScene(lobbyScene);
-    }
-
     public void setGameScene() {
         FXMLLoader gameFxml = new FXMLLoader(getClass().getResource("/Game.fxml"));
         Scene gameScene;

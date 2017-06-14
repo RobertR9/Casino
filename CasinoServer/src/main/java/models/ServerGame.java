@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class ServerGameImpl {
+public class ServerGame {
 
     private static final long serialVersionUID = -6114105589582888658L;
 
@@ -19,10 +19,10 @@ public class ServerGameImpl {
 
     private Set<Bet> bets = new HashSet<>();
 
-    public ServerGameImpl() {
+    public ServerGame() {
     }
 
-    public ServerGameImpl(String name) {
+    public ServerGame(String name) {
         super();
         this.name = name;
     }
@@ -32,10 +32,10 @@ public class ServerGameImpl {
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof ServerGameImpl)) {
+        if (!(o instanceof ServerGame)) {
             return false;
         } else {
-            ServerGameImpl other = (ServerGameImpl) o;
+            ServerGame other = (ServerGame) o;
             try {
                 return other.getName().equals(name);
             } catch (Exception e) {

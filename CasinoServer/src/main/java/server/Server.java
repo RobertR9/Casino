@@ -5,10 +5,10 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import models.ServerGameImpl;
+import models.ServerGame;
 
 public class Server extends Application {
-    private static ServerGameImpl serverGame;
+    private static ServerGame serverGame;
     private Stage stage;
 
     public void setGameScene() {
@@ -25,7 +25,7 @@ public class Server extends Application {
     }
 
     public static void main(String[] args) {
-        serverGame = new ServerGameImpl("Roulette");
+        serverGame = new ServerGame("Roulette");
         System.err.print("Starting server with game: " + serverGame.getName());
         launch(args);
     }

@@ -3,10 +3,12 @@ package listeners;
 import controller.ServerController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import library.Bet;
 import library.Result;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
+import java.util.Iterator;
 
 public class SpinFinishedListener implements EventHandler<ActionEvent> {
     private int winningNr;
@@ -21,14 +23,25 @@ public class SpinFinishedListener implements EventHandler<ActionEvent> {
     public void handle(ActionEvent event) {
         Result result = new Result(winningNr);
         serverController.addResult(result);
-        ObjectMessage objectMessage = serverController.topicSenderGateway.createObjectMessage(result);
+        ObjectMessage objectMessage = ServerController.topicSenderGateway.createObjectMessage(result);
         try {
-            serverController.topicSenderGateway.send(objectMessage);
+            ServerController.topicSenderGateway.send(objectMessage);
         } catch (JMSException e) {
             System.err.print(e.getMessage());
         }
 
-        ServerController.serverGateway.handleWinningNumberReply(result);
+        Iterator<Bet> iterator = serverController.getBets().iterator();
+        while (iterator.hasNext()) {
+            Bet bet = iterator.next();
+            if (bet.cameTrue(winningNr)) {
+                bet.setStatus("Won");
+            } else {
+                bet.setStatus("Lost");
+            }
+            ServerController.serverGateway.handleBetResultReply(bet);
+
+        }
+//        ServerController.serverGateway.handleWinningNumberReply(result);
     }
 
 }

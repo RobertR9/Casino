@@ -403,28 +403,28 @@ public class GameController implements Initializable {
      * Updates Player's balance.
      * Removes chips from the GUI.
      *
-     * @param result Result
+     * @param bet Bet
      */
-    public void handleBet(Result result) {
-
+    public void handleBet(Bet oldBet,Bet bet) {
         Iterator<Bet> iterator = this.bets.iterator();
+        System.err.print("\n Iterator: " + iterator.next());
+        System.err.print("\n Bet: " + bet);
 
         while (iterator.hasNext()) {
-            Bet bet = iterator.next();
-
-            if (bet.getStatus().equals("placed")) {
-                if (bet.cameTrue(result.getNumber())) {
+            if (iterator.next().equals(bet)) {
+                if (bet.getStatus().equals(Bet.WON)) {
+//                if (bet.cameTrue(result.getNumber())) {
                     this.client.player.setBalance(this.client.player.getBalance() + (bet.getAmount() + (bet.getAmount() * bet.getPayout())));
-                } else {
+//                } else {
                     //myabe only removing losing bets
+//                }
+
                 }
-                Platform.runLater(() -> this.chipsOnBoard.getChildren().remove(this.betToChip.get(bet)));
-                iterator.remove();
             }
+            Platform.runLater(() -> this.chipsOnBoard.getChildren().remove(this.betToChip.get(bet)));
+            iterator.remove();
         }
-//        for (Bet bet : this.bets) {
-//
-//        }
+
         this.refreshBalanceText();
     }
 

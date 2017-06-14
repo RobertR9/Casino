@@ -3,14 +3,16 @@ package jms;
 import game.GameController;
 import gateway.GateWay;
 import library.Bet;
-import library.Result;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientGateway extends GateWay {
     private GameController gameController;
+    private static Map<String, Bet> bets = new HashMap<>();
 
     public ClientGateway(GameController gameController) {
         super("ClientSendQueue", "ClientReceiveQueue");
@@ -23,9 +25,9 @@ public class ClientGateway extends GateWay {
             try {
                 ObjectMessage objectMessage = (ObjectMessage) message;
                 switch (objectMessage.getJMSType()) {
-                    case "BetResult":
-                        System.out.print("\n Betresult: " + objectMessage.getObject());
-                        gameController.handleBet((Result) objectMessage.getObject());
+                    case "Bet":
+                        System.out.print("\n Bet: " + objectMessage.getObject());
+                        gameController.handleBet((Bet) objectMessage.getObject());
                         break;
                     default:
                         throw new RuntimeException("No Object Message");
@@ -36,16 +38,14 @@ public class ClientGateway extends GateWay {
         }
     }
 
-    //TODO: Fix login?? Send player to server so server knows which players are playing
-    public void handleLogin(String username) {
-        ObjectMessage objectMessage;
-        objectMessage = this.getSender().createObjectMessage(username);
-//        this.getSender().send(objectMessage);
-    }
-
     //TODO:: Send Bet to server so server knows which bets are for this round
     public void sendBet(Bet bet) {
         ObjectMessage objectMessage = this.getSender().createObjectMessage(bet);
         this.getSender().send(objectMessage);
+        try {
+            bets.put(objectMessage.getJMSMessageID(), bet);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 }

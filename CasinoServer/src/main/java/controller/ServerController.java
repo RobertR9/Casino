@@ -82,6 +82,7 @@ public class ServerController {
     public static TopicSenderGateway topicSenderGateway = new TopicSenderGateway("RouletteResults");
     public static ServerGateway serverGateway;
 
+
     public ServerController(Server server) {
         this.server = server;
         this.serverGateway = new ServerGateway(this);
@@ -128,7 +129,8 @@ public class ServerController {
             path.getElements().add(new ArcTo(radius, radius, 0, x, y, false, false));
         }
 
-        long durationMillis = 12 * 1000;
+        //it was 12
+        long durationMillis = 2 * 1000;
         PathTransition spin = new PathTransition(Duration.millis(durationMillis), path, ball);
         spin.setInterpolator(Interpolator.LINEAR);
         spin.play();
@@ -152,9 +154,16 @@ public class ServerController {
     public void addBet(Bet b) {
         bets.add(b);
     }
+    public void removeBet(Bet b) {
+        bets.remove(b);
+    }
 
     public void addResult(Result result) {
         results.add(result);
         resultTable.refresh();
+    }
+
+    public ObservableList<Bet> getBets() {
+        return bets;
     }
 }

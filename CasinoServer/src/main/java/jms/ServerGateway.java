@@ -3,7 +3,6 @@ package jms;
 import controller.ServerController;
 import gateway.GateWay;
 import library.Bet;
-import library.Player;
 import library.Result;
 
 import javax.jms.JMSException;
@@ -42,16 +41,20 @@ public class ServerGateway extends GateWay {
         }
     }
 
-    public void handleReply(Player player) {
-        ObjectMessage objectMessage = this.getSender().createObjectMessage(player);
-        this.getSender().send(objectMessage);
-    }
-
     public void handleWinningNumberReply(Result result) {
         System.out.print("\n" + "handleWinningNumberReply" + "\n");
 
         ObjectMessage objectMessage = this.getSender().createObjectMessage(result);
         this.getSender().send(objectMessage);
+    }
+
+    public void handleBetResultReply(Bet bet) {
+        System.out.print("\n" + "handleBetResultReply" + "\n");
+
+        ObjectMessage objectMessage = this.getSender().createObjectMessage(bet);
+        this.getSender().send(objectMessage);
+        //removed bet from list
+        serverController.removeBet(bet);
     }
 
     private void handleBetRequest(Bet bet) {
